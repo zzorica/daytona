@@ -17,7 +17,7 @@ Method | HTTP request | Description
 
 ## CreateWorkspace
 
-> Workspace CreateWorkspace(ctx).Workspace(workspace).Execute()
+> Workspace CreateWorkspace(ctx).Workspace(workspace).Resume(resume).Execute()
 
 Create a workspace
 
@@ -37,10 +37,11 @@ import (
 
 func main() {
 	workspace := *openapiclient.NewCreateWorkspace() // CreateWorkspace | Create workspace
+	resume := true // bool | Resume (optional)
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
-	resp, r, err := apiClient.WorkspaceAPI.CreateWorkspace(context.Background()).Workspace(workspace).Execute()
+	resp, r, err := apiClient.WorkspaceAPI.CreateWorkspace(context.Background()).Workspace(workspace).Resume(resume).Execute()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error when calling `WorkspaceAPI.CreateWorkspace``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -62,6 +63,7 @@ Other parameters are passed through a pointer to a apiCreateWorkspaceRequest str
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **workspace** | [**CreateWorkspace**](CreateWorkspace.md) | Create workspace | 
+ **resume** | **bool** | Resume | 
 
 ### Return type
 

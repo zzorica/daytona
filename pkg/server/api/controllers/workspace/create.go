@@ -3,6 +3,7 @@ package workspace
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/daytonaio/daytona/pkg/server/api/controllers/workspace/dto"
 	"github.com/daytonaio/daytona/pkg/server/workspaceservice"
@@ -15,6 +16,7 @@ import (
 //	@Summary		Create a workspace
 //	@Description	Create a workspace
 //	@Param			workspace	body	CreateWorkspace	true	"Create workspace"
+//	@Param			resume		query	bool			false	"Resume"
 //	@Produce		json
 //	@Success		200	{object}	Workspace
 //	@Router			/workspace [post]
@@ -28,7 +30,8 @@ func CreateWorkspace(ctx *gin.Context) {
 		return
 	}
 
-	w, err := workspaceservice.CreateWorkspace(createWorkspaceDto)
+	resume, err := strconv.ParseBool(ctx.Query("resume"))
+	w, err := workspaceservice.CreateWorkspace(createWorkspaceDto, err != nil && resume)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create workspace: %s", err.Error()))
 		return

@@ -249,6 +249,12 @@ paths:
     post:
       description: Create a workspace
       operationId: CreateWorkspace
+      parameters:
+      - description: Resume
+        in: query
+        name: resume
+        schema:
+          type: boolean
       requestBody:
         content:
           '*/*':

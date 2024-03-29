@@ -10,10 +10,11 @@ import (
 )
 
 type WorkspaceDTO struct {
-	Id       string       `gorm:"primaryKey"`
-	Name     string       `json:"name" gorm:"unique"`
-	Target   string       `json:"target"`
-	Projects []ProjectDTO `gorm:"serializer:json"`
+	Id            string              `gorm:"primaryKey"`
+	Name          string              `json:"name" gorm:"unique"`
+	Target        string              `json:"target"`
+	Projects      []ProjectDTO        `gorm:"serializer:json"`
+	CreationState types.CreationState `json:"creationState"`
 }
 
 func (w WorkspaceDTO) GetProject(name string) (*ProjectDTO, error) {
@@ -28,9 +29,10 @@ func (w WorkspaceDTO) GetProject(name string) (*ProjectDTO, error) {
 
 func ToWorkspaceDTO(workspace *types.Workspace) WorkspaceDTO {
 	workspaceDTO := WorkspaceDTO{
-		Id:     workspace.Id,
-		Name:   workspace.Name,
-		Target: workspace.Target,
+		Id:            workspace.Id,
+		Name:          workspace.Name,
+		Target:        workspace.Target,
+		CreationState: workspace.CreationState,
 	}
 
 	for _, project := range workspace.Projects {
@@ -42,9 +44,10 @@ func ToWorkspaceDTO(workspace *types.Workspace) WorkspaceDTO {
 
 func ToWorkspace(workspaceDTO WorkspaceDTO) *types.Workspace {
 	workspace := types.Workspace{
-		Id:     workspaceDTO.Id,
-		Name:   workspaceDTO.Name,
-		Target: workspaceDTO.Target,
+		Id:            workspaceDTO.Id,
+		Name:          workspaceDTO.Name,
+		Target:        workspaceDTO.Target,
+		CreationState: workspaceDTO.CreationState,
 	}
 
 	for _, projectDTO := range workspaceDTO.Projects {

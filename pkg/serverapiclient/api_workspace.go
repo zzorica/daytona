@@ -26,11 +26,18 @@ type ApiCreateWorkspaceRequest struct {
 	ctx        context.Context
 	ApiService *WorkspaceAPIService
 	workspace  *CreateWorkspace
+	resume     *bool
 }
 
 // Create workspace
 func (r ApiCreateWorkspaceRequest) Workspace(workspace CreateWorkspace) ApiCreateWorkspaceRequest {
 	r.workspace = &workspace
+	return r
+}
+
+// Resume
+func (r ApiCreateWorkspaceRequest) Resume(resume bool) ApiCreateWorkspaceRequest {
+	r.resume = &resume
 	return r
 }
 
@@ -78,6 +85,9 @@ func (a *WorkspaceAPIService) CreateWorkspaceExecute(r ApiCreateWorkspaceRequest
 		return localVarReturnValue, nil, reportError("workspace is required and must be specified")
 	}
 
+	if r.resume != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "resume", r.resume, "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 

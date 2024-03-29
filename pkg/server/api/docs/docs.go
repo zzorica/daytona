@@ -379,6 +379,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/CreateWorkspace"
                         }
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Resume",
+                        "name": "resume",
+                        "in": "query"
                     }
                 ],
                 "responses": {

@@ -22,19 +22,31 @@ type Repository struct {
 } // @name Repository
 
 type Project struct {
-	Name        string            `json:"name"`
-	Repository  *Repository       `json:"repository"`
-	WorkspaceId string            `json:"workspaceId"`
-	ApiKey      string            `json:"-"`
-	Target      string            `json:"target"`
-	EnvVars     map[string]string `json:"-"`
+	Name          string            `json:"name"`
+	Repository    *Repository       `json:"repository"`
+	WorkspaceId   string            `json:"workspaceId"`
+	ApiKey        string            `json:"-"`
+	Target        string            `json:"target"`
+	EnvVars       map[string]string `json:"-"`
+	CreationState CreationState     `json:"-"`
 } // @name Project
 type Workspace struct {
-	Id       string     `json:"id"`
-	Name     string     `json:"name"`
-	Projects []*Project `json:"projects"`
-	Target   string     `json:"target"`
+	Id            string        `json:"id"`
+	Name          string        `json:"name"`
+	Projects      []*Project    `json:"projects"`
+	Target        string        `json:"target"`
+	CreationState CreationState `json:"-"`
 } // @name Workspace
+
+type CreationState string
+
+const (
+	CreationStatePendingCreate CreationState = "PendingCreate"
+	CreationStateCreated       CreationState = "Created"
+	CreationStatePendingStart  CreationState = "PendingStart"
+	CreationStateStarted       CreationState = "Started"
+	CreationStateComplete      CreationState = "Complete"
+)
 
 type ProjectInfo struct {
 	Name             string `json:"name"`

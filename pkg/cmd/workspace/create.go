@@ -80,7 +80,9 @@ var CreateCmd = &cobra.Command{
 			visited[repo.Url] = true
 		}
 
-		target, err := getTarget()
+		resumeFlag, _ := cmd.Flags().GetBool("resume")
+
+		target, err := getTarget(resumeFlag)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -128,7 +130,7 @@ var CreateCmd = &cobra.Command{
 			Name:         &workspaceName,
 			Target:       target.Name,
 			Repositories: requestRepos,
-		}).Execute()
+		}).Resume(resumeFlag).Execute()
 		if err != nil {
 			cleanUpTerminal(statusProgram, apiclient.HandleErrorResponse(res, err))
 		}
@@ -182,21 +184,32 @@ func init() {
 	CreateCmd.Flags().Bool("manual", false, "Manually enter the git repositories")
 	CreateCmd.Flags().Bool("multi-project", false, "Workspace with multiple projects/repos")
 	CreateCmd.Flags().Bool("skip-ide", false, "Don't open the IDE after workspace creation")
+	CreateCmd.Flags().Bool("resume", false, "Resume creation of a multi-project workspace")
 }
 
-func getTarget() (*serverapiclient.ProviderTarget, error) {
+func getTarget(resume bool) (*serverapiclient.ProviderTarget, error) {
 	targets, err := server.GetTargetList()
 	if err != nil {
 		return nil, err
 	}
 
 	if targetNameFlag != "" {
+		if resume {
+			return nil, errors.New("cannot specify target when resuming a workspace")
+		}
 		for _, t := range targets {
 			if *t.Name == targetNameFlag {
 				return &t, nil
 			}
 		}
 		return nil, fmt.Errorf("target '%s' not found", targetNameFlag)
+	}
+
+	if resume {
+		return &serverapiclient.ProviderTarget{
+			Name:    nil,
+			Options: nil,
+		}, nil
 	}
 
 	if len(targets) == 1 {

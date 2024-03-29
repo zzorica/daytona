@@ -479,6 +479,10 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/CreateWorkspace'
+      - description: Resume
+        in: query
+        name: resume
+        type: boolean
       produces:
       - application/json
       responses:
