@@ -24,7 +24,7 @@ type ServerConfig struct {
 	ServerDownloadUrl string        `json:"serverDownloadUrl"`
 	Frps              *FRPSConfig   `json:"frps,omitempty"`
 	ApiPort           uint32        `json:"apiPort"`
-	HeadscalePort     uint32        `json:"headscalePort"`
+	TailscalePort     uint32        `json:"headscalePort"` //	TODO: Change to tailscalePort
 	TargetsFilePath   string        `json:"targetsFilePath"`
 	BinariesPath      string        `json:"binariesPath"`
 } // @name ServerConfig

@@ -21,7 +21,7 @@ func ConnectServer() error {
 		ServerDomain: c.Frps.Domain,
 		ServerPort:   int(c.Frps.Port),
 		Name:         fmt.Sprintf("daytona-server-%s", c.Id),
-		Port:         int(c.HeadscalePort),
+		Port:         int(c.TailscalePort),
 		SubDomain:    c.Id,
 	})
 }

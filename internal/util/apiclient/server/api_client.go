@@ -79,7 +79,7 @@ func ToServerConfig(config *serverapiclient.ServerConfig) *types.ServerConfig {
 			Protocol: *config.Frps.Protocol,
 		},
 		ApiPort:       uint32(*config.ApiPort),
-		HeadscalePort: uint32(*config.HeadscalePort),
+		TailscalePort: uint32(*config.HeadscalePort),
 	}
 }
 

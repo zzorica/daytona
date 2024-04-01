@@ -4,20 +4,34 @@
 package headscale
 
 import (
-	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/daytonaio/daytona/pkg/types"
 	"github.com/juanfont/headscale/hscontrol"
 )
 
-func Start(serverConfig *types.ServerConfig) error {
-	cfg, err := getConfig(serverConfig)
+type HeadscaleServer struct {
+	ServerConfig *types.ServerConfig
+}
+
+func (s *HeadscaleServer) Init() error {
+	headscaleConfigDir, err := s.getHeadscaleConfigDir()
 	if err != nil {
-		return fmt.Errorf(
-			"failed to load configuration while creating headscale instance: %w",
-			err,
-		)
+		return err
 	}
+
+	err = os.MkdirAll(headscaleConfigDir, 0700)
+	if err != nil {
+		//	.Msg("failed to create headscale directory")
+		return err
+	}
+
+	return nil
+}
+
+func (s *HeadscaleServer) Start() error {
+	cfg, err := s.getHeadscaleConfig()
 
 	app, err := hscontrol.NewHeadscale(cfg)
 	if err != nil {
@@ -25,4 +39,12 @@ func Start(serverConfig *types.ServerConfig) error {
 	}
 
 	return app.Serve()
+}
+
+func (s *HeadscaleServer) getHeadscaleConfigDir() (string, error) {
+	userConfigDir, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(userConfigDir, "daytona", "server", "headscale"), nil
 }

@@ -7,28 +7,40 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/daytonaio/daytona/internal/util/apiclient"
 	"github.com/daytonaio/daytona/internal/util/apiclient/server"
 	"github.com/daytonaio/daytona/pkg/agent/config"
-	"github.com/daytonaio/daytona/pkg/agent/git"
-	"github.com/daytonaio/daytona/pkg/agent/ssh"
-	"github.com/daytonaio/daytona/pkg/agent/tailscale"
 	"github.com/daytonaio/daytona/pkg/gitprovider"
 	"github.com/daytonaio/daytona/pkg/serverapiclient"
 	log "github.com/sirupsen/logrus"
 )
 
-func Start() error {
+type GitService interface {
+	CloneRepository(project *serverapiclient.Project, authToken *string) error
+	RepositoryExists(project *serverapiclient.Project) (bool, error)
+	SetGitConfig(userData *serverapiclient.GitUserData) error
+}
+
+type SshServer interface {
+	Start() error
+}
+
+type TailscaleServer interface {
+	Start() error
+}
+
+type Agent struct {
+	Config    *config.Config
+	Git       GitService
+	Ssh       SshServer
+	Tailscale TailscaleServer
+}
+
+func (a *Agent) Start() error {
 	log.Info("Starting Daytona Agent")
 
-	c, err := config.GetConfig()
-	if err != nil {
-		return err
-	}
-
-	project, err := getProject(c)
+	project, err := a.getProject()
 	if err != nil {
 		return err
 	}
@@ -37,7 +49,7 @@ func Start() error {
 		return errors.New("repository url not found")
 	}
 
-	gitProvider, err := getGitProvider(*project.Repository.Url)
+	gitProvider, err := a.getGitProvider(*project.Repository.Url)
 	if err != nil {
 		return err
 	}
@@ -47,46 +59,51 @@ func Start() error {
 		authToken = gitProvider.Token
 	}
 
-	if _, err := os.Stat(c.ProjectDir); os.IsNotExist(err) {
-		log.Info("Cloning repository...")
-		err = git.CloneRepository(c, project, authToken)
-		if err != nil {
-			log.Error(fmt.Sprintf("failed to clone repository: %s", err))
-		} else {
-			log.Info("Repository cloned")
-		}
+	exists, err := a.Git.RepositoryExists(project)
+	if err != nil {
+		log.Error(fmt.Sprintf("failed to clone repository: %s", err))
 	} else {
-		log.Info("Repository already exists. Skipping clone...")
+		if exists {
+			log.Info("Repository already exists. Skipping clone...")
+		} else {
+			log.Info("Cloning repository...")
+			err = a.Git.CloneRepository(project, authToken)
+			if err != nil {
+				log.Error(fmt.Sprintf("failed to clone repository: %s", err))
+			} else {
+				log.Info("Repository cloned")
+			}
+		}
 	}
 
 	var gitUserData *serverapiclient.GitUserData
 	if gitProvider != nil {
-		gitUserData, err = getGitUserData(*gitProvider.Id)
+		gitUserData, err = a.getGitUserData(*gitProvider.Id)
 		if err != nil {
 			log.Error(fmt.Sprintf("failed to get git user data: %s", err))
 		}
 	}
 
-	err = git.SetGitConfig(gitUserData)
+	err = a.Git.SetGitConfig(gitUserData)
 	if err != nil {
 		log.Error(fmt.Sprintf("failed to set git config: %s", err))
 	}
 
 	go func() {
-		ssh.Start()
+		a.Ssh.Start()
 	}()
 
-	return tailscale.Start(c)
+	return a.Tailscale.Start()
 }
 
-func getProject(c *config.Config) (*serverapiclient.Project, error) {
-	workspace, err := server.GetWorkspace(c.WorkspaceId)
+func (a *Agent) getProject() (*serverapiclient.Project, error) {
+	workspace, err := server.GetWorkspace(a.Config.WorkspaceId)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, project := range workspace.Projects {
-		if *project.Name == c.ProjectName {
+		if *project.Name == a.Config.ProjectName {
 			return &project, nil
 		}
 	}
@@ -94,7 +111,7 @@ func getProject(c *config.Config) (*serverapiclient.Project, error) {
 	return nil, errors.New("project not found")
 }
 
-func getGitProvider(repoUrl string) (*serverapiclient.GitProvider, error) {
+func (a *Agent) getGitProvider(repoUrl string) (*serverapiclient.GitProvider, error) {
 	apiClient, err := server.GetApiClient(nil)
 	if err != nil {
 		return nil, err
@@ -113,7 +130,7 @@ func getGitProvider(repoUrl string) (*serverapiclient.GitProvider, error) {
 	return nil, nil
 }
 
-func getGitUserData(gitProviderId string) (*serverapiclient.GitUserData, error) {
+func (a *Agent) getGitUserData(gitProviderId string) (*serverapiclient.GitUserData, error) {
 	apiClient, err := server.GetApiClient(nil)
 	if err != nil {
 		return nil, err

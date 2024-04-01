@@ -11,6 +11,7 @@ import (
 	"github.com/daytonaio/daytona/pkg/server"
 	"github.com/daytonaio/daytona/pkg/server/config"
 	"github.com/daytonaio/daytona/pkg/server/frpc"
+	"github.com/daytonaio/daytona/pkg/server/headscale"
 	"github.com/daytonaio/daytona/pkg/types"
 	"github.com/daytonaio/daytona/pkg/views/util"
 
@@ -44,14 +45,24 @@ var ServerCmd = &cobra.Command{
 			return
 		}
 
-		errCh := make(chan error)
-
-		err := server.Start(errCh)
+		c, err := config.GetConfig()
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		c, err := config.GetConfig()
+		headscaleServer := headscale.HeadscaleServer{
+			ServerConfig: c,
+		}
+		headscaleServer.Init()
+
+		server := server.Server{
+			Config:          c,
+			TailscaleServer: &headscaleServer,
+		}
+
+		errCh := make(chan error)
+
+		err = server.Start(errCh)
 		if err != nil {
 			log.Fatal(err)
 		}

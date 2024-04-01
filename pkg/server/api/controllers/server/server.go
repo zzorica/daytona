@@ -71,6 +71,16 @@ func SetConfig(ctx *gin.Context) {
 //
 //	@id				GenerateNetworkKey
 func GenerateNetworkKey(ctx *gin.Context) {
+	config, err := config.GetConfig()
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to get config: %s", err.Error()))
+		return
+	}
+
+	headscale := &headscale.HeadscaleServer{
+		ServerConfig: config,
+	}
+
 	authKey, err := headscale.CreateAuthKey()
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to generate network key: %s", err.Error()))

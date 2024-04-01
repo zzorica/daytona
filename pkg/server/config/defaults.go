@@ -100,7 +100,7 @@ func getDefaultConfig() (*types.ServerConfig, error) {
 		ProvidersDir:      providersDir,
 		ServerDownloadUrl: defaultServerDownloadUrl,
 		ApiPort:           defaultApiPort,
-		HeadscalePort:     defaultHeadscalePort,
+		TailscalePort:     defaultHeadscalePort,
 		TargetsFilePath:   targetsPath,
 		BinariesPath:      binariesPath,
 		Frps:              getDefaultFRPSConfig(),
@@ -134,7 +134,7 @@ func getDefaultConfig() (*types.ServerConfig, error) {
 		if err != nil {
 			log.Error(fmt.Printf("%s. Using %d", err, defaultHeadscalePort))
 		} else {
-			c.HeadscalePort = headscalePort
+			c.TailscalePort = headscalePort
 		}
 	}
 
