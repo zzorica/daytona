@@ -27,10 +27,8 @@ import (
 )
 
 type BuildOutcome struct {
-	Outcome               string `json:"outcome"`
-	ContainerId           string `json:"containerId"`
-	RemoteUser            string `json:"remoteUser"`
-	RemoteWorkspaceFolder string `json:"remoteWorkspaceFolder"`
+	Outcome   string   `json:"outcome"`
+	ImageName []string `json:"imageName"`
 }
 
 type DevcontainerBuilder struct {
@@ -91,20 +89,21 @@ func (b *DevcontainerBuilder) CleanUp() error {
 }
 
 func (b *DevcontainerBuilder) Publish() error {
-	projectLogger := b.loggerFactory.CreateProjectLogger(b.project.WorkspaceId, b.project.Name)
-	defer projectLogger.Close()
+	return nil
+	// projectLogger := b.loggerFactory.CreateProjectLogger(b.project.WorkspaceId, b.project.Name)
+	// defer projectLogger.Close()
 
-	cliBuilder, err := b.getBuilderDockerClient()
-	if err != nil {
-		return err
-	}
+	// cliBuilder, err := b.getBuilderDockerClient()
+	// if err != nil {
+	// 	return err
+	// }
 
-	dockerClient := docker.NewDockerClient(docker.DockerClientConfig{
-		ApiClient: cliBuilder,
-	})
+	// dockerClient := docker.NewDockerClient(docker.DockerClientConfig{
+	// 	ApiClient: cliBuilder,
+	// })
 
-	//	todo: registry auth (from container registry store)
-	return dockerClient.PushImage(b.buildImageName, nil, projectLogger)
+	// //	todo: registry auth (from container registry store)
+	// return dockerClient.PushImage(b.buildImageName, nil, projectLogger)
 }
 
 func (b *DevcontainerBuilder) buildDevcontainer() error {
@@ -120,12 +119,26 @@ func (b *DevcontainerBuilder) buildDevcontainer() error {
 		ApiClient: cli,
 	})
 
-	cmd := []string{"devcontainer", "up", "--prebuild", "--workspace-folder", "/project"}
+	cmd := []string{"docker", "buildx", "create", "--name", "linux-multiplatform", "--driver", "docker-container", "--use"}
+
+	execConfig := types.ExecConfig{
+		AttachStdout: true,
+		AttachStderr: true,
+		Cmd:          cmd,
+		Tty:          true,
+	}
+
+	_, err = dockerClient.ExecSync(b.id, execConfig, nil)
+	if err != nil {
+		return err
+	}
+
+	cmd = []string{"devcontainer", "build", "--workspace-folder", "/project", "--platform", "linux/amd64,linux/arm64", "--push", "--image-name", b.buildImageName}
 	if b.project.Build.Devcontainer.DevContainerFilePath != "" {
 		cmd = append(cmd, "--config", filepath.Join("/project", b.project.Build.Devcontainer.DevContainerFilePath))
 	}
 
-	execConfig := types.ExecConfig{
+	execConfig = types.ExecConfig{
 		AttachStdout: true,
 		AttachStderr: true,
 		Cmd:          cmd,
@@ -171,28 +184,9 @@ func (b *DevcontainerBuilder) buildDevcontainer() error {
 		return errors.New("devcontainer build failed")
 	}
 
-	b.user = buildOutcome.RemoteUser
-
 	if result.ExitCode != 0 {
 		return errors.New(result.StdErr)
 	}
-
-	builderCli, err := b.getBuilderDockerClient()
-	if err != nil {
-		return err
-	}
-
-	tag := b.project.Repository.Sha
-	imageName := fmt.Sprintf("%s/p-%s:%s", b.localContainerRegistryServer, b.id, tag)
-
-	_, err = builderCli.ContainerCommit(context.Background(), buildOutcome.ContainerId, container.CommitOptions{
-		Reference: imageName,
-	})
-	if err != nil {
-		return err
-	}
-
-	b.buildImageName = imageName
 
 	return nil
 }
@@ -265,6 +259,7 @@ func (b *DevcontainerBuilder) readConfiguration() error {
 	b.postCreateCommands = append(b.postCreateCommands, postCreateCommands...)
 	b.postStartCommands = append(b.postStartCommands, root.MergedConfiguration.Entrypoints...)
 	b.postStartCommands = append(b.postStartCommands, postStartCommands...)
+	b.user = root.MergedConfiguration.RemoteUser
 
 	return nil
 }

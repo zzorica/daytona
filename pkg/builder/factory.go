@@ -5,6 +5,7 @@ package builder
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -101,6 +102,9 @@ func (f *BuilderFactory) Create(p workspace.Project, gpc *gitprovider.GitProvide
 			return nil, err
 		}
 
+		tag := p.Repository.Sha
+		imageName := fmt.Sprintf("%s/p-%s:%s", f.localContainerRegistryServer, buildId, tag)
+
 		return &DevcontainerBuilder{
 			Builder: &Builder{
 				id:                              buildId,
@@ -117,6 +121,7 @@ func (f *BuilderFactory) Create(p workspace.Project, gpc *gitprovider.GitProvide
 				defaultProjectPostStartCommands: f.defaultProjectPostStartCommands,
 			},
 			builderDockerPort: builderDockerPort,
+			buildImageName:    imageName,
 		}, nil
 	}
 
