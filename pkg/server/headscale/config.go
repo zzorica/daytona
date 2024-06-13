@@ -26,11 +26,10 @@ func (s *HeadscaleServer) getHeadscaleConfig() (*hstypes.Config, error) {
 	}
 
 	cfg := &hstypes.Config{
-		DBtype:                         "sqlite3",
-		ServerURL:                      fmt.Sprintf("https://%s.%s", s.serverId, s.frpsDomain),
-		Addr:                           fmt.Sprintf("127.0.0.1:%d", s.headscalePort),
+		// ServerURL:                      fmt.Sprintf("https://%s.%s", s.serverId, s.frpsDomain),
+		Addr:                           fmt.Sprintf("0.0.0.0:%d", s.headscalePort),
+		ServerURL:                      fmt.Sprintf("http://127.0.0.1:%d", s.headscalePort),
 		EphemeralNodeInactivityTimeout: 5 * time.Minute,
-		NodeUpdateCheckInterval:        10 * time.Second,
 		BaseDomain:                     "daytona.local",
 		DERP: hstypes.DERPConfig{
 			ServerEnabled:                      true,
@@ -47,10 +46,6 @@ func (s *HeadscaleServer) getHeadscaleConfig() (*hstypes.Config, error) {
 		Log: hstypes.LogConfig{
 			Format: "text",
 		},
-		IPPrefixes: []netip.Prefix{
-			netip.MustParsePrefix("fd7a:115c:a1e0::/48"),
-			netip.MustParsePrefix("100.64.0.0/10"),
-		},
 		DNSConfig: &tailcfg.DNSConfig{
 			Proxied: true,
 			Nameservers: []netip.Addr{
@@ -66,14 +61,29 @@ func (s *HeadscaleServer) getHeadscaleConfig() (*hstypes.Config, error) {
 				},
 			},
 		},
-		DBpath:               filepath.Join(headscaleConfigDir, "headscale.db"),
+		Database: hstypes.DatabaseConfig{
+			Sqlite: hstypes.SqliteConfig{
+				Path: filepath.Join(headscaleConfigDir, "headscale.db"),
+			},
+			Type: "sqlite3",
+		},
 		UnixSocket:           filepath.Join(headscaleConfigDir, "headscale.sock"),
 		UnixSocketPermission: fs.FileMode.Perm(0700),
 		NoisePrivateKeyPath:  filepath.Join(headscaleConfigDir, "noise_private.key"),
 		CLI: hstypes.CLIConfig{
 			Timeout: 10 * time.Second,
 		},
+		Tuning: hstypes.Tuning{
+			BatchChangeDelay: 100 * time.Millisecond,
+		},
+		IPAllocation: hstypes.IPAllocationStrategySequential,
 	}
+
+	v4Prefix := netip.MustParsePrefix("100.64.0.0/10")
+	v6Prefix := netip.MustParsePrefix("fd7a:115c:a1e0::/48")
+
+	cfg.PrefixV4 = &v4Prefix
+	cfg.PrefixV6 = &v6Prefix
 
 	logLevelEnv, logLevelSet := os.LookupEnv("LOG_LEVEL")
 	if logLevelSet {

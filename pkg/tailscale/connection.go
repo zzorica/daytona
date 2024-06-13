@@ -39,7 +39,8 @@ func GetConnection(config *TsnetConnConfig) (*tsnet.Server, error) {
 		Ephemeral:  true,
 	}
 
-	timeoutCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	// FIXME: Revert back to 30 sec before merging. 30 min is just for debugging
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
 	defer cancel()
 
 	_, err := conn.Up(timeoutCtx)
