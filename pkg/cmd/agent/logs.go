@@ -5,7 +5,6 @@ package agent
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 
@@ -33,10 +32,11 @@ var logsCmd = &cobra.Command{
 		}
 		defer file.Close()
 
-		msgChan := make(chan []byte)
+		msgChan := make(chan interface{})
+		// msgChan := make(chan []byte)
 		errChan := make(chan error)
 
-		go util.ReadLog(context.Background(), file, followFlag, msgChan, errChan)
+		go util.ReadLogDelimited(context.Background(), file, followFlag, msgChan, errChan)
 
 		for {
 			select {
@@ -49,8 +49,9 @@ var logsCmd = &cobra.Command{
 					}
 					return
 				}
-			case msg := <-msgChan:
-				fmt.Println(string(msg))
+				// case msg := <-msgChan:
+				// TODO handle
+				// fmt.Println(string(msg))
 			}
 		}
 	},

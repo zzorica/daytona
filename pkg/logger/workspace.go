@@ -7,12 +7,16 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/sirupsen/logrus"
 )
 
 type workspaceLogger struct {
 	logsDir     string
 	workspaceId string
 	logFile     *os.File
+	logger      *logrus.Logger
+	source      LogSource
 }
 
 func (w *workspaceLogger) Write(p []byte) (n int, err error) {
@@ -27,9 +31,15 @@ func (w *workspaceLogger) Write(p []byte) (n int, err error) {
 			return 0, err
 		}
 		w.logFile = logFile
+		w.logger.SetOutput(w.logFile)
 	}
 
-	return w.logFile.Write(p)
+	w.logger.WithFields(logrus.Fields{
+		"workspaceId": w.workspaceId,
+		"source":      w.source,
+	}).Info(string(p))
+
+	return 0, nil
 }
 
 func (w *workspaceLogger) Close() error {
@@ -54,8 +64,10 @@ func (w *workspaceLogger) Cleanup() error {
 	return os.RemoveAll(workspaceLogsDir)
 }
 
-func (l *loggerFactoryImpl) CreateWorkspaceLogger(workspaceId string) Logger {
-	return &workspaceLogger{workspaceId: workspaceId, logsDir: l.logsDir}
+func (l *loggerFactoryImpl) CreateWorkspaceLogger(workspaceId string, source LogSource) Logger {
+	logger := logrus.New()
+	logger.SetFormatter(&CustomJSONFormatter{})
+	return &workspaceLogger{workspaceId: workspaceId, logsDir: l.logsDir, logger: logger, source: source}
 }
 
 func (l *loggerFactoryImpl) CreateWorkspaceLogReader(workspaceId string) (io.Reader, error) {

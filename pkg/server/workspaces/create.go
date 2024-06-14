@@ -12,6 +12,7 @@ import (
 	"github.com/daytonaio/daytona/pkg/builder"
 	"github.com/daytonaio/daytona/pkg/containerregistry"
 	"github.com/daytonaio/daytona/pkg/gitprovider"
+	"github.com/daytonaio/daytona/pkg/logger"
 	"github.com/daytonaio/daytona/pkg/provider"
 	"github.com/daytonaio/daytona/pkg/server/workspaces/dto"
 	"github.com/daytonaio/daytona/pkg/workspace"
@@ -180,8 +181,8 @@ func (s *WorkspaceService) createWorkspace(ws *workspace.Workspace) (*workspace.
 		return ws, err
 	}
 
-	wsLogger := s.loggerFactory.CreateWorkspaceLogger(ws.Id)
-	wsLogger.Write([]byte("Creating workspace\n"))
+	wsLogger := s.loggerFactory.CreateWorkspaceLogger(ws.Id, logger.LogSourceServer)
+	wsLogger.Write([]byte(fmt.Sprintf("Creating workspace %s (%s)\n", ws.Name, ws.Id)))
 
 	err = s.provisioner.CreateWorkspace(ws, target)
 	if err != nil {
@@ -189,7 +190,7 @@ func (s *WorkspaceService) createWorkspace(ws *workspace.Workspace) (*workspace.
 	}
 
 	for i, project := range ws.Projects {
-		projectLogger := s.loggerFactory.CreateProjectLogger(ws.Id, project.Name)
+		projectLogger := s.loggerFactory.CreateProjectLogger(ws.Id, project.Name, logger.LogSourceServer)
 		defer projectLogger.Close()
 
 		gc, _ := s.gitProviderService.GetConfigForUrl(project.Repository.Url)

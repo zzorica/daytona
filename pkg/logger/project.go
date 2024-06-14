@@ -7,6 +7,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/sirupsen/logrus"
 )
 
 type projectLogger struct {
@@ -14,6 +16,8 @@ type projectLogger struct {
 	workspaceId string
 	projectName string
 	logFile     *os.File
+	logger      *logrus.Logger
+	source      LogSource
 }
 
 func (pl *projectLogger) Write(p []byte) (n int, err error) {
@@ -29,9 +33,16 @@ func (pl *projectLogger) Write(p []byte) (n int, err error) {
 			return 0, err
 		}
 		pl.logFile = logFile
+		pl.logger.SetOutput(pl.logFile)
 	}
 
-	return pl.logFile.Write(p)
+	pl.logger.WithFields(logrus.Fields{
+		"workspaceId": pl.workspaceId,
+		"projectName": pl.projectName,
+		"source":      pl.source,
+	}).Info(string(p))
+
+	return 0, nil
 }
 
 func (pl *projectLogger) Close() error {
@@ -56,8 +67,10 @@ func (pl *projectLogger) Cleanup() error {
 	return os.RemoveAll(projectLogsDir)
 }
 
-func (l *loggerFactoryImpl) CreateProjectLogger(workspaceId, projectName string) Logger {
-	return &projectLogger{workspaceId: workspaceId, logsDir: l.logsDir, projectName: projectName}
+func (l *loggerFactoryImpl) CreateProjectLogger(workspaceId, projectName string, source LogSource) Logger {
+	logger := logrus.New()
+	logger.SetFormatter(&CustomJSONFormatter{})
+	return &projectLogger{workspaceId: workspaceId, logsDir: l.logsDir, projectName: projectName, logger: logger, source: source}
 }
 
 func (l *loggerFactoryImpl) CreateProjectLogReader(workspaceId, projectName string) (io.Reader, error) {

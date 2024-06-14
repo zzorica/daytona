@@ -57,7 +57,12 @@ func GetWebsocketConn(path string, profile *config.Profile, query *string) (*web
 		wsUrl = fmt.Sprintf("%s?%s", wsUrl, *query)
 	}
 
-	return websocket.DefaultDialer.Dial(wsUrl, http.Header{
+	dialer := websocket.DefaultDialer
+
+	// dialer.ReadBufferSize = 10000
+	// dialer.WriteBufferSize = 10000
+
+	return dialer.Dial(wsUrl, http.Header{
 		"Authorization": []string{fmt.Sprintf("Bearer %s", apiKey)},
 	})
 }

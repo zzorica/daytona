@@ -21,9 +21,10 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func writeToWs(ws *websocket.Conn, c chan []byte, errChan chan error) {
+func writeToWs(ws *websocket.Conn, c chan interface{}, errChan chan error) {
 	for {
-		err := ws.WriteMessage(websocket.TextMessage, <-c)
+		value := <-c
+		err := ws.WriteJSON(value)
 		if err != nil {
 			errChan <- err
 			break
@@ -42,12 +43,12 @@ func readLog(ginCtx *gin.Context, logReader io.Reader) {
 	}
 	defer ws.Close()
 
-	msgChannel := make(chan []byte)
+	msgChannel := make(chan interface{})
 	errChannel := make(chan error)
 	ctx, cancel := context.WithCancel(context.Background())
 
 	defer cancel()
-	go util.ReadLog(ctx, logReader, follow, msgChannel, errChannel)
+	go util.ReadLogDelimited(ctx, logReader, follow, msgChannel, errChannel)
 	go writeToWs(ws, msgChannel, errChannel)
 
 	go func() {

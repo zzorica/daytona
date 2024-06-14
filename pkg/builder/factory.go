@@ -68,7 +68,7 @@ func (f *BuilderFactory) Create(p workspace.Project, gpc *gitprovider.GitProvide
 		return nil, err
 	}
 
-	projectLogger := f.loggerFactory.CreateProjectLogger(p.WorkspaceId, p.Name)
+	projectLogger := f.loggerFactory.CreateProjectLogger(p.WorkspaceId, p.Name, logger.LogSourceBuilder)
 	defer projectLogger.Close()
 
 	gitservice := git.Service{

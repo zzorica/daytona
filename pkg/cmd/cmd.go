@@ -54,6 +54,7 @@ func Execute() {
 	rootCmd.AddCommand(StartCmd)
 	rootCmd.AddCommand(StopCmd)
 	rootCmd.AddCommand(InfoCmd)
+	rootCmd.AddCommand(LogCmd)
 	rootCmd.AddCommand(PortForwardCmd)
 	rootCmd.AddCommand(EnvCmd)
 

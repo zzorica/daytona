@@ -121,7 +121,10 @@ func getProjectsOutputs(projects []apiclient.Project, isCreationView bool) strin
 	for i, project := range projects {
 		output += getInfoLine(fmt.Sprintf("Project #%d", i+1), *project.Name)
 		output += getInfoLineState("State", project.State)
-		output += getInfoLineGitStatus("Branch", project.State.GitStatus)
+		//todo: remove on rebase
+		if project.State != nil && project.State.GitStatus != nil {
+			output += getInfoLineGitStatus("Branch", project.State.GitStatus)
+		}
 		if project.Target != nil && !isCreationView {
 			output += getInfoLine("Target", *project.Target)
 		}
