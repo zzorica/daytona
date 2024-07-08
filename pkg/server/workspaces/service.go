@@ -8,6 +8,7 @@ import (
 	"io"
 
 	"github.com/daytonaio/daytona/pkg/builder"
+	"github.com/daytonaio/daytona/pkg/gitprovider"
 	"github.com/daytonaio/daytona/pkg/logs"
 	"github.com/daytonaio/daytona/pkg/provider"
 	"github.com/daytonaio/daytona/pkg/provisioner"
@@ -31,6 +32,7 @@ type IWorkspaceService interface {
 	StartWorkspace(workspaceId string) error
 	StopProject(workspaceId string, projectName string) error
 	StopWorkspace(workspaceId string) error
+	PrebuildProject(project *workspace.Project, gc *gitprovider.GitProviderConfig) error
 }
 
 type targetStore interface {

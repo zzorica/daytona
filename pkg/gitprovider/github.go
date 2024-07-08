@@ -5,13 +5,19 @@ package gitprovider
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
 
+	"github.com/daytonaio/daytona/pkg/prebuild"
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
 )
+
+type GithubWebhookPayload struct {
+	Url string
+}
 
 type GitHubGitProvider struct {
 	*AbstractGitProvider
@@ -38,7 +44,7 @@ func (g *GitHubGitProvider) GetNamespaces() ([]*GitNamespace, error) {
 		return nil, err
 	}
 
-	orgList, _, err := client.Organizations.List(context.Background(), user.Username, &github.ListOptions{
+	orgList, _, err := client.Organizations.List(context.Background(), "", &github.ListOptions{
 		PerPage: 100,
 		Page:    1,
 	})
@@ -317,4 +323,41 @@ func (g *GitHubGitProvider) parseStaticGitContext(repoUrl string) (*StaticGitCon
 	}
 
 	return staticContext, nil
+}
+
+type PrebuildConfig struct {
+	Branch string
+}
+
+func (g *GitHubGitProvider) RegisterPrebuildWebhook(repo *GitRepository, endpointUrl string) error {
+	client := g.getApiClient()
+
+	hook, res, err := client.Repositories.CreateHook(context.Background(), repo.Owner, repo.Name, &github.Hook{
+		Active: github.Bool(true),
+		Events: []string{"push"},
+		Config: map[string]interface{}{
+			"url":          endpointUrl,
+			"content_type": "json",
+		},
+	})
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(hook)
+	fmt.Println(res)
+
+	return nil
+}
+
+func (g *GitHubGitProvider) ParseWebhookEvent(payload interface{}) (*prebuild.WebhookEventPayload, error) {
+	parsedPayload, ok := payload.(*github.WebHookPayload)
+	if !ok {
+		return nil, fmt.Errorf("invalid payload type: %T", payload)
+	}
+
+	return &prebuild.WebhookEventPayload{
+		Url: parsedPayload.Repo.GetHTMLURL(),
+	}, nil
 }

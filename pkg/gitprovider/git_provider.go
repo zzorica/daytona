@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+
+	"github.com/daytonaio/daytona/pkg/prebuild"
 )
 
 const personalNamespaceId = "<PERSONAL>"
@@ -36,6 +38,9 @@ type GitProvider interface {
 	GetLastCommitSha(staticContext *StaticGitContext) (string, error)
 	getPrContext(staticContext *StaticGitContext) (*StaticGitContext, error)
 	parseStaticGitContext(repoUrl string) (*StaticGitContext, error)
+
+	RegisterPrebuildWebhook(repo *GitRepository, endpointUrl string) error
+	ParseWebhookEvent(webhookRequestPayload interface{}) (*prebuild.WebhookEventPayload, error)
 }
 
 type AbstractGitProvider struct {
