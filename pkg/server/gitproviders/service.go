@@ -28,7 +28,6 @@ type IGitProviderService interface {
 	SetGitProviderConfig(providerConfig *gitprovider.GitProviderConfig) error
 	GetLastCommitSha(repo *gitprovider.GitRepository) (string, error)
 	RegisterPrebuildWebhook(gitProviderId string, repo *gitprovider.GitRepository, endpointUrl string) error
-	ProcessWebhookEvent(gitProviderId string, payload interface{}) error
 }
 
 type GitProviderServiceConfig struct {

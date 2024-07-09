@@ -376,3 +376,7 @@ func (g *GitLabGitProvider) getPrContext(staticContext *StaticGitContext) (*Stat
 
 	return &repo, nil
 }
+
+func (g *GitLabGitProvider) RegisterPrebuildWebhook(repo *GitRepository, endpointUrl string) error {
+	return fmt.Errorf("chosen git provider does not support prebuilds")
+}

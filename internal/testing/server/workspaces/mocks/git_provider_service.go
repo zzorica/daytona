@@ -94,8 +94,3 @@ func (m *mockGitProviderService) RegisterPrebuildWebhook(gitProviderId string, r
 	args := m.Called(repo, gitProviderId, endpointUrl)
 	return args.Error(1)
 }
-
-func (m *mockGitProviderService) ProcessWebhookEvent(gitProviderId string, payload interface{}) error {
-	args := m.Called(gitProviderId, payload)
-	return args.Error(1)
-}

@@ -36,13 +36,11 @@ func WebhookEvent(ctx *gin.Context) {
 		return
 	}
 
-	var payload interface{}
+	var payload map[string]interface{}
 	if err := ctx.BindJSON(&payload); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
 		return
 	}
-
-	fmt.Println(payload)
 
 	obj, err := gitProvider.ParseWebhookEvent(payload)
 	if err != nil {
@@ -57,11 +55,8 @@ func WebhookEvent(ctx *gin.Context) {
 		Branch: &obj.Branch,
 	}
 
-	project.Build = &workspace.ProjectBuild{
-		Devcontainer: &workspace.ProjectBuildDevcontainer{
-			DevContainerFilePath: ".devcontainer/devcontainer.json",
-		},
-	}
+	// Autodetect
+	project.Build = &workspace.ProjectBuild{}
 
 	gc, _ := server.GitProviderService.GetConfigForUrl(project.Repository.Url)
 

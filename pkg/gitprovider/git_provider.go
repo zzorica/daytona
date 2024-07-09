@@ -38,9 +38,10 @@ type GitProvider interface {
 	GetLastCommitSha(staticContext *StaticGitContext) (string, error)
 	getPrContext(staticContext *StaticGitContext) (*StaticGitContext, error)
 	parseStaticGitContext(repoUrl string) (*StaticGitContext, error)
+	getCommitsRange(repo *GitRepository, owner string, initialSha string, currentSha string) (int, error)
 
 	RegisterPrebuildWebhook(repo *GitRepository, endpointUrl string) error
-	ParseWebhookEvent(webhookRequestPayload interface{}) (*prebuild.WebhookEventPayload, error)
+	ParseWebhookEvent(webhookRequestPayload map[string]interface{}) (*prebuild.WebhookEventPayload, error)
 }
 
 type AbstractGitProvider struct {

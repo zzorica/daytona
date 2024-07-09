@@ -5,6 +5,7 @@ package gitprovider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -351,13 +352,36 @@ func (g *GitHubGitProvider) RegisterPrebuildWebhook(repo *GitRepository, endpoin
 	return nil
 }
 
-func (g *GitHubGitProvider) ParseWebhookEvent(payload interface{}) (*prebuild.WebhookEventPayload, error) {
-	parsedPayload, ok := payload.(*github.WebHookPayload)
-	if !ok {
-		return nil, fmt.Errorf("invalid payload type: %T", payload)
+func (g *GitHubGitProvider) ParseWebhookEvent(payload map[string]interface{}) (*prebuild.WebhookEventPayload, error) {
+	// todo: revisit json handling
+
+	// Attempt to marshal the map back to JSON
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		fmt.Printf("Error marshalling data: %v\n", err)
+		return nil, err
+	}
+
+	// Attempt to unmarshal the JSON into WebHookPayload
+	var data github.WebHookPayload
+	err = json.Unmarshal(jsonData, &data)
+	if err != nil {
+		fmt.Printf("Error unmarshalling to WebHookPayload: %v\n", err)
+		return nil, err
 	}
 
 	return &prebuild.WebhookEventPayload{
-		Url: parsedPayload.Repo.GetHTMLURL(),
+		Url: data.Repo.GetHTMLURL(),
 	}, nil
+}
+
+func (g *GitHubGitProvider) getCommitsRange(repo *GitRepository, owner string, initialSha string, currentSha string) (int, error) {
+	client := g.getApiClient()
+
+	compare, _, err := client.Repositories.CompareCommits(context.Background(), owner, repo.Name, initialSha, currentSha)
+	if err != nil {
+		return 0, err
+	}
+
+	return len(compare.Commits), nil
 }
