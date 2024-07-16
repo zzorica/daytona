@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/daytonaio/daytona/pkg/build"
 	"github.com/daytonaio/daytona/pkg/frpc"
 	"github.com/daytonaio/daytona/pkg/provider/manager"
 	"github.com/daytonaio/daytona/pkg/server/apikeys"
@@ -36,6 +37,7 @@ type ServerInstanceConfig struct {
 	GitProviderService       gitproviders.IGitProviderService
 	ProviderManager          manager.IProviderManager
 	ProfileDataService       profiledata.IProfileDataService
+	BuildPoller              build.IPoller
 	TelemetryService         telemetry.TelemetryService
 }
 
@@ -62,6 +64,7 @@ func GetInstance(serverConfig *ServerInstanceConfig) *Server {
 			GitProviderService:       serverConfig.GitProviderService,
 			ProviderManager:          serverConfig.ProviderManager,
 			ProfileDataService:       serverConfig.ProfileDataService,
+			BuildPoller:              serverConfig.BuildPoller,
 			TelemetryService:         serverConfig.TelemetryService,
 		}
 	}
@@ -81,6 +84,7 @@ type Server struct {
 	GitProviderService       gitproviders.IGitProviderService
 	ProviderManager          manager.IProviderManager
 	ProfileDataService       profiledata.IProfileDataService
+	BuildPoller              build.IPoller
 	TelemetryService         telemetry.TelemetryService
 }
 
@@ -160,12 +164,20 @@ func (s *Server) Start(errCh chan error) error {
 		}()
 	}
 
+	// Start build poller
+	log.Info("Starting builds poller")
+	err = s.BuildPoller.Start()
+	if err != nil {
+		return err
+	}
+
 	go func() {
 		interruptChannel := make(chan os.Signal, 1)
 		signal.Notify(interruptChannel, os.Interrupt)
 
 		for range interruptChannel {
 			log.Info("Shutting down")
+			s.BuildPoller.Stop()
 			plugin.CleanupClients()
 			os.Exit(0)
 		}

@@ -40,6 +40,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const POLLER_INTERVAL = "0 */5 * * * *"
+
 var ServeCmd = &cobra.Command{
 	Use:     "serve",
 	Short:   "Run the server process in the current terminal session",
@@ -116,7 +118,7 @@ var ServeCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		buildResultStore, err := db.NewBuildResultStore(dbConnection)
+		buildStore, err := db.NewBuildStore(dbConnection)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -159,6 +161,7 @@ var ServeCmd = &cobra.Command{
 		providerTargetService := providertargets.NewProviderTargetService(providertargets.ProviderTargetServiceConfig{
 			TargetStore: providerTargetStore,
 		})
+
 		apiKeyService := apikeys.NewApiKeyService(apikeys.ApiKeyServiceConfig{
 			ApiKeyStore: apiKeyStore,
 		})
@@ -191,7 +194,7 @@ var ServeCmd = &cobra.Command{
 			ContainerRegistryServer:  c.BuilderRegistryServer,
 			BasePath:                 filepath.Join(configDir, "builds"),
 			BuildImageNamespace:      buildImageNamespace,
-			BuildResultStore:         buildResultStore,
+			BuildStore:               buildStore,
 			LoggerFactory:            loggerFactory,
 			DefaultProjectImage:      c.DefaultProjectImage,
 			DefaultProjectUser:       c.DefaultProjectUser,
@@ -229,11 +232,19 @@ var ServeCmd = &cobra.Command{
 			DefaultProjectUser:       c.DefaultProjectUser,
 			Provisioner:              provisioner,
 			LoggerFactory:            loggerFactory,
-			BuilderFactory:           builderFactory,
 			TelemetryService:         telemetryService,
 		})
+
 		profileDataService := profiledata.NewProfileDataService(profiledata.ProfileDataServiceConfig{
 			ProfileDataStore: profileDataStore,
+		})
+
+		buildPoller := build.NewPoller(build.PollerConfig{
+			Scheduler:          build.NewScheduler(),
+			Interval:           POLLER_INTERVAL,
+			BuilderFactory:     builderFactory,
+			BuildStore:         buildStore,
+			GitProviderService: gitProviderService,
 		})
 
 		server := server.GetInstance(&server.ServerInstanceConfig{
@@ -247,6 +258,7 @@ var ServeCmd = &cobra.Command{
 			GitProviderService:       gitProviderService,
 			ProviderManager:          providerManager,
 			ProfileDataService:       profileDataService,
+			BuildPoller:              buildPoller,
 			TelemetryService:         telemetryService,
 		})
 
