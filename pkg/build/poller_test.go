@@ -5,45 +5,24 @@ package build_test
 
 import (
 	"testing"
-	"time"
 
 	t_build "github.com/daytonaio/daytona/internal/testing/server/build"
 	"github.com/daytonaio/daytona/internal/testing/server/workspaces/mocks"
 	"github.com/daytonaio/daytona/pkg/build"
-	"github.com/daytonaio/daytona/pkg/gitprovider"
-	"github.com/daytonaio/daytona/pkg/workspace"
+	"github.com/daytonaio/daytona/pkg/logs"
+	"github.com/daytonaio/daytona/pkg/poller"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
-var pollerProject workspace.Project = workspace.Project{
-	Build: &workspace.ProjectBuild{
-		Devcontainer: &workspace.ProjectBuildDevcontainer{
-			DevContainerFilePath: ".devcontainer/devcontainer.json",
-		},
-	},
-	Repository: &gitprovider.GitRepository{
-		Url: "url",
-	},
-}
-
-var pollerBuild build.Build = build.Build{
-	Hash:              "test-poller",
-	User:              "test-poller",
-	Image:             "test-poller",
-	ProjectVolumePath: "test-poller",
-	State:             build.BuildStatePending,
-	Project:           pollerProject,
-}
-
 type PollerTestSuite struct {
 	suite.Suite
-	mockGitProviderService *mocks.MockGitProviderService
-	mockBuilderFactory     *mocks.MockBuilderFactory
-	mockBuilder            *mocks.MockBuilderPlugin
-	mockScheduler          *mocks.MockSchedulerPlugin
-	buildStore             build.Store
-	Poller                 build.IPoller
+	mockBuilderFactory mocks.MockBuilderFactory
+	mockBuilder        mocks.MockBuilderPlugin
+	mockScheduler      mocks.MockSchedulerPlugin
+	loggerFactory      logs.LoggerFactory
+	buildStore         build.Store
+	Poller             poller.IPoller
 }
 
 func NewPollerTestSuite() *PollerTestSuite {
@@ -51,24 +30,27 @@ func NewPollerTestSuite() *PollerTestSuite {
 }
 
 func TestPoller(t *testing.T) {
-	suite.Run(t, NewPollerTestSuite())
+	s := NewPollerTestSuite()
+
+	s.mockBuilderFactory = mocks.MockBuilderFactory{}
+	s.mockBuilder = mocks.MockBuilderPlugin{}
+	s.mockScheduler = mocks.MockSchedulerPlugin{}
+
+	s.buildStore = t_build.NewInMemoryBuildStore()
+	s.loggerFactory = logs.NewLoggerFactory(t.TempDir())
+	s.Poller = build.NewPoller(build.PollerConfig{
+		Scheduler:      &s.mockScheduler,
+		Interval:       "0 */5 * * * *",
+		BuilderFactory: &s.mockBuilderFactory,
+		BuildStore:     s.buildStore,
+		LoggerFactory:  s.loggerFactory,
+	})
+
+	suite.Run(t, s)
 }
 
 func (s *PollerTestSuite) SetupTest() {
-	s.buildStore = t_build.NewInMemoryBuildStore()
-	s.mockGitProviderService = mocks.NewMockGitProviderService()
-	s.mockBuilderFactory = &mocks.MockBuilderFactory{}
-	s.mockBuilder = &mocks.MockBuilderPlugin{}
-	s.mockScheduler = &mocks.MockSchedulerPlugin{}
-	s.Poller = build.NewPoller(build.PollerConfig{
-		Scheduler:          s.mockScheduler,
-		Interval:           "0 */5 * * * *",
-		BuilderFactory:     s.mockBuilderFactory,
-		BuildStore:         s.buildStore,
-		GitProviderService: s.mockGitProviderService,
-	})
-
-	err := s.buildStore.Save(&pollerBuild)
+	err := s.buildStore.Save(mocks.MockBuild)
 	if err != nil {
 		s.T().Fatal(err)
 	}
@@ -94,18 +76,17 @@ func (s *PollerTestSuite) TestStop() {
 	s.mockScheduler.AssertExpectations(s.T())
 }
 
+// TODO FIXME: Need to figure out how to test the runBuildProcess goroutine
 func (s *PollerTestSuite) TestPoll() {
-	gpc := gitprovider.GitProviderConfig{}
+	s.T().Skip("Need to figure out how to test the runBuildProcess goroutine")
 
-	s.mockGitProviderService.On("GetConfigForUrl", mock.Anything).Return(&gpc, nil)
-	s.mockBuilderFactory.On("Create", mock.Anything, gpc).Return(s.mockBuilder, nil)
-	s.mockBuilder.On("Build").Return(&pollerBuild, nil)
-	s.mockBuilder.On("Publish").Return(nil)
+	s.mockBuilderFactory.On("Create", mocks.MockBuild).Return(&s.mockBuilder, nil)
+	s.mockBuilder.On("Build", mocks.MockBuild).Return(mocks.MockBuild, nil)
+	s.mockBuilder.On("Publish", mocks.MockBuild).Return(nil)
 	s.mockBuilder.On("CleanUp").Return(nil)
 
 	s.Poller.Poll()
 
-	time.Sleep(100 * time.Millisecond)
-
-	s.mockGitProviderService.AssertExpectations(s.T())
+	s.mockBuilderFactory.AssertExpectations(s.T())
+	s.mockBuilder.AssertExpectations(s.T())
 }

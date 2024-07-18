@@ -190,9 +190,7 @@ var ServeCmd = &cobra.Command{
 		buildImageNamespace = strings.TrimSuffix(buildImageNamespace, "/")
 
 		builderConfig := build.BuilderConfig{
-			ServerConfigFolder:       configDir,
 			ContainerRegistryServer:  c.BuilderRegistryServer,
-			BasePath:                 filepath.Join(configDir, "builds"),
 			BuildImageNamespace:      buildImageNamespace,
 			BuildStore:               buildStore,
 			LoggerFactory:            loggerFactory,
@@ -240,11 +238,11 @@ var ServeCmd = &cobra.Command{
 		})
 
 		buildPoller := build.NewPoller(build.PollerConfig{
-			Scheduler:          build.NewScheduler(),
-			Interval:           POLLER_INTERVAL,
-			BuilderFactory:     builderFactory,
-			BuildStore:         buildStore,
-			GitProviderService: gitProviderService,
+			Scheduler:      build.NewBuildScheduler(),
+			Interval:       POLLER_INTERVAL,
+			BuilderFactory: builderFactory,
+			BuildStore:     buildStore,
+			LoggerFactory:  loggerFactory,
 		})
 
 		server := server.GetInstance(&server.ServerInstanceConfig{
@@ -265,6 +263,13 @@ var ServeCmd = &cobra.Command{
 		errCh := make(chan error)
 
 		err = server.Start(errCh)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Start build poller
+		log.Info("Starting builds poller")
+		err = server.BuildPoller.Start()
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -15,8 +15,6 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/daytonaio/daytona/pkg/containerregistry"
 	"github.com/daytonaio/daytona/pkg/docker"
 	"github.com/daytonaio/daytona/pkg/logs"
@@ -36,30 +34,16 @@ type BuildOutcome struct {
 
 type DevcontainerBuilder struct {
 	*Builder
-	buildImage        string
-	user              string
 	builderDockerPort uint16
 }
 
-func (b *DevcontainerBuilder) Build() (*Build, error) {
-	err := b.startContainer()
+func (b *DevcontainerBuilder) Build(build Build) (string, string, error) {
+	err := b.startContainer(build)
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
 
-	err = b.buildDevcontainer()
-	if err != nil {
-		return nil, err
-	}
-
-	return &Build{
-		Hash:              b.hash,
-		State:             BuildStateSuccess,
-		Project:           b.project,
-		User:              b.user,
-		Image:             b.buildImage,
-		ProjectVolumePath: b.projectVolumePath,
-	}, nil
+	return b.buildDevcontainer(build)
 }
 
 func (b *DevcontainerBuilder) CleanUp() error {
@@ -77,7 +61,7 @@ func (b *DevcontainerBuilder) CleanUp() error {
 		return err
 	}
 
-	err = os.RemoveAll(b.projectVolumePath)
+	err = os.RemoveAll(b.projectDir)
 	if err != nil {
 		return err
 	}
@@ -85,9 +69,9 @@ func (b *DevcontainerBuilder) CleanUp() error {
 	return nil
 }
 
-func (b *DevcontainerBuilder) Publish() error {
-	projectLogger := b.loggerFactory.CreateProjectLogger(b.project.WorkspaceId, b.project.Name, logs.LogSourceBuilder)
-	defer projectLogger.Close()
+func (b *DevcontainerBuilder) Publish(build Build) error {
+	buildLogger := b.loggerFactory.CreateBuildLogger(build.Project.Name, build.Hash, logs.LogSourceBuilder)
+	defer buildLogger.Close()
 
 	cliBuilder, err := b.getBuilderDockerClient()
 	if err != nil {
@@ -103,16 +87,16 @@ func (b *DevcontainerBuilder) Publish() error {
 		return err
 	}
 
-	return dockerClient.PushImage(b.buildImage, cr, projectLogger)
+	return dockerClient.PushImage(build.Image, cr, buildLogger)
 }
 
-func (b *DevcontainerBuilder) buildDevcontainer() error {
-	projectLogger := b.loggerFactory.CreateProjectLogger(b.project.WorkspaceId, b.project.Name, logs.LogSourceBuilder)
-	defer projectLogger.Close()
+func (b *DevcontainerBuilder) buildDevcontainer(build Build) (string, string, error) {
+	buildLogger := b.loggerFactory.CreateBuildLogger(build.Project.Name, build.Hash, logs.LogSourceBuilder)
+	defer buildLogger.Close()
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return err
+		return b.defaultProjectImage, b.defaultProjectUser, err
 	}
 
 	dockerClient := docker.NewDockerClient(docker.DockerClientConfig{
@@ -120,8 +104,8 @@ func (b *DevcontainerBuilder) buildDevcontainer() error {
 	})
 
 	cmd := []string{"devcontainer", "up", "--prebuild", "--workspace-folder", "/project"}
-	if b.project.Build.Devcontainer.DevContainerFilePath != "" {
-		cmd = append(cmd, "--config", filepath.Join("/project", b.project.Build.Devcontainer.DevContainerFilePath))
+	if build.Project.Build.Devcontainer.DevContainerFilePath != "" {
+		cmd = append(cmd, "--config", filepath.Join("/project", build.Project.Build.Devcontainer.DevContainerFilePath))
 	}
 
 	execConfig := types.ExecConfig{
@@ -139,7 +123,7 @@ func (b *DevcontainerBuilder) buildDevcontainer() error {
 		scanner := bufio.NewScanner(r)
 		for scanner.Scan() {
 			lastLine = scanner.Text()
-			projectLogger.Write([]byte(lastLine + "\n"))
+			buildLogger.Write([]byte(lastLine + "\n"))
 
 			if strings.Contains(lastLine, `{"outcome"`) {
 				start := strings.Index(lastLine, "{")
@@ -150,38 +134,34 @@ func (b *DevcontainerBuilder) buildDevcontainer() error {
 
 				err = json.Unmarshal([]byte(lastLine), &buildOutcome)
 				if err != nil {
-					//	todo: handle properly
-					log.Error(err)
+					buildLogger.Write([]byte(err.Error() + "\n"))
 				}
 			}
 		}
 		if err := scanner.Err(); err != nil {
-			//	todo: handle properly
-			log.Error(err)
+			buildLogger.Write([]byte(err.Error() + "\n"))
 		}
 	}(&buildOutcome)
 
 	result, err := dockerClient.ExecSync(b.id, execConfig, w)
 	if err != nil {
-		return err
+		return b.defaultProjectImage, b.defaultProjectUser, err
 	}
 
 	if buildOutcome.Outcome != "success" {
-		return errors.New("devcontainer build failed")
+		return b.defaultProjectImage, b.defaultProjectUser, errors.New("devcontainer build failed")
 	}
 
-	b.user = buildOutcome.RemoteUser
-
 	if result.ExitCode != 0 {
-		return errors.New(result.StdErr)
+		return b.defaultProjectImage, b.defaultProjectUser, errors.New(result.StdErr)
 	}
 
 	builderCli, err := b.getBuilderDockerClient()
 	if err != nil {
-		return err
+		return b.defaultProjectImage, b.defaultProjectUser, err
 	}
 
-	tag := b.project.Repository.Sha
+	tag := build.Project.Repository.Sha
 	namespace := b.buildImageNamespace
 	imageName := fmt.Sprintf("%s%s/p-%s:%s", b.containerRegistryServer, namespace, b.id, tag)
 
@@ -189,19 +169,17 @@ func (b *DevcontainerBuilder) buildDevcontainer() error {
 		Reference: imageName,
 	})
 	if err != nil {
-		return err
+		return b.defaultProjectImage, b.defaultProjectUser, err
 	}
 
-	b.buildImage = imageName
-
-	return nil
+	return imageName, buildOutcome.RemoteUser, nil
 }
 
-func (b *DevcontainerBuilder) startContainer() error {
+func (b *DevcontainerBuilder) startContainer(build Build) error {
 	ctx := context.Background()
 
-	projectLogger := b.loggerFactory.CreateProjectLogger(b.project.WorkspaceId, b.project.Name, logs.LogSourceBuilder)
-	defer projectLogger.Close()
+	buildLogger := b.loggerFactory.CreateBuildLogger(build.Project.Name, build.Hash, logs.LogSourceBuilder)
+	defer buildLogger.Close()
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -217,7 +195,7 @@ func (b *DevcontainerBuilder) startContainer() error {
 		return err
 	}
 
-	err = dockerClient.PullImage(b.image, cr, projectLogger)
+	err = dockerClient.PullImage(b.image, cr, buildLogger)
 	if err != nil {
 		return err
 	}
@@ -238,7 +216,7 @@ func (b *DevcontainerBuilder) startContainer() error {
 		Mounts: []mount.Mount{
 			{
 				Type:   mount.TypeBind,
-				Source: b.projectVolumePath,
+				Source: b.projectDir,
 				Target: "/project",
 			},
 		},

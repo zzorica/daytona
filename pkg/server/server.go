@@ -10,8 +10,8 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/daytonaio/daytona/pkg/build"
 	"github.com/daytonaio/daytona/pkg/frpc"
+	"github.com/daytonaio/daytona/pkg/poller"
 	"github.com/daytonaio/daytona/pkg/provider/manager"
 	"github.com/daytonaio/daytona/pkg/server/apikeys"
 	"github.com/daytonaio/daytona/pkg/server/containerregistries"
@@ -37,7 +37,7 @@ type ServerInstanceConfig struct {
 	GitProviderService       gitproviders.IGitProviderService
 	ProviderManager          manager.IProviderManager
 	ProfileDataService       profiledata.IProfileDataService
-	BuildPoller              build.IPoller
+	BuildPoller              poller.IPoller
 	TelemetryService         telemetry.TelemetryService
 }
 
@@ -84,7 +84,7 @@ type Server struct {
 	GitProviderService       gitproviders.IGitProviderService
 	ProviderManager          manager.IProviderManager
 	ProfileDataService       profiledata.IProfileDataService
-	BuildPoller              build.IPoller
+	BuildPoller              poller.IPoller
 	TelemetryService         telemetry.TelemetryService
 }
 
@@ -162,13 +162,6 @@ func (s *Server) Start(errCh chan error) error {
 				errCh <- err
 			}
 		}()
-	}
-
-	// Start build poller
-	log.Info("Starting builds poller")
-	err = s.BuildPoller.Start()
-	if err != nil {
-		return err
 	}
 
 	go func() {

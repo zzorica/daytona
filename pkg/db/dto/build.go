@@ -6,29 +6,32 @@ package dto
 import "github.com/daytonaio/daytona/pkg/build"
 
 type BuildDTO struct {
-	Hash              string `gorm:"primaryKey"`
-	State             string `json:"state"`
-	User              string `json:"user"`
-	Image             string `json:"image"`
-	ProjectVolumePath string `json:"projectVolumePath"`
+	Id      string     `json:"id"`
+	Hash    string     `gorm:"primaryKey"`
+	State   string     `json:"state"`
+	Project ProjectDTO `json:"project" gorm:"serializer:json"`
+	User    string     `json:"user"`
+	Image   string     `json:"image"`
 }
 
 func ToBuildDTO(build *build.Build) BuildDTO {
 	return BuildDTO{
-		Hash:              build.Hash,
-		State:             string(build.State),
-		User:              build.User,
-		Image:             build.Image,
-		ProjectVolumePath: build.ProjectVolumePath,
+		Id:      build.Id,
+		Hash:    build.Hash,
+		State:   string(build.State),
+		Project: ToProjectDTO(&build.Project),
+		User:    build.User,
+		Image:   build.Image,
 	}
 }
 
 func ToBuild(buildDTO BuildDTO) *build.Build {
 	return &build.Build{
-		Hash:              buildDTO.Hash,
-		State:             build.BuildState(buildDTO.State),
-		User:              buildDTO.User,
-		Image:             buildDTO.Image,
-		ProjectVolumePath: buildDTO.ProjectVolumePath,
+		Id:      buildDTO.Id,
+		Hash:    buildDTO.Hash,
+		State:   build.BuildState(buildDTO.State),
+		Project: *ToProject(buildDTO.Project),
+		User:    buildDTO.User,
+		Image:   buildDTO.Image,
 	}
 }

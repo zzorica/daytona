@@ -8,17 +8,18 @@ import "github.com/daytonaio/daytona/pkg/workspace"
 type BuildState string
 
 const (
-	BuildStatePending BuildState = "pending"
-	BuildStateRunning BuildState = "running"
-	BuildStateFailure BuildState = "failure"
-	BuildStateSuccess BuildState = "success"
+	BuildStatePending   BuildState = "pending"
+	BuildStateRunning   BuildState = "running"
+	BuildStateError     BuildState = "error"
+	BuildStateSuccess   BuildState = "success"
+	BuildStatePublished BuildState = "published"
 )
 
 type Build struct {
-	Hash              string            `json:"hash"`
-	State             BuildState        `json:"state"`
-	Project           workspace.Project `json:"project"`
-	User              string            `json:"user"`
-	Image             string            `json:"image"`
-	ProjectVolumePath string            `json:"projectVolumePath"`
+	Id      string            `json:"id"`
+	Hash    string            `json:"hash"`
+	State   BuildState        `json:"state"`
+	Project workspace.Project `json:"project"`
+	User    string            `json:"user"`
+	Image   string            `json:"image"`
 } // @name Build

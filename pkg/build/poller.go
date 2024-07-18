@@ -5,129 +5,123 @@ package build
 
 import (
 	"fmt"
+	"sync"
 
-	"github.com/daytonaio/daytona/pkg/gitprovider"
-	"github.com/daytonaio/daytona/pkg/server/gitproviders"
+	"github.com/daytonaio/daytona/pkg/logs"
+	"github.com/daytonaio/daytona/pkg/poller"
+	"github.com/daytonaio/daytona/pkg/scheduler"
 	log "github.com/sirupsen/logrus"
 )
 
 type PollerConfig struct {
-	Scheduler          IScheduler
-	Interval           string
-	BuilderFactory     IBuilderFactory
-	BuildStore         Store
-	GitProviderService gitproviders.IGitProviderService
+	Scheduler      scheduler.IScheduler
+	Interval       string
+	BuilderFactory IBuilderFactory
+	BuildStore     Store
+	LoggerFactory  logs.LoggerFactory
 }
 
-type IPoller interface {
-	Start() error
-	Stop()
-	Poll()
+type BuildPoller struct {
+	poller.AbstractPoller
+	builderFactory IBuilderFactory
+	buildStore     Store
+	loggerFactory  logs.LoggerFactory
 }
 
-type Poller struct {
-	scheduler          IScheduler
-	interval           string
-	builderFactory     IBuilderFactory
-	buildStore         Store
-	gitProviderService gitproviders.IGitProviderService
-}
-
-func NewPoller(config PollerConfig) *Poller {
-	return &Poller{
-		scheduler:          config.Scheduler,
-		interval:           config.Interval,
-		builderFactory:     config.BuilderFactory,
-		buildStore:         config.BuildStore,
-		gitProviderService: config.GitProviderService,
+func NewPoller(config PollerConfig) *BuildPoller {
+	poller := &BuildPoller{
+		AbstractPoller: *poller.NewPoller(config.Interval, config.Scheduler),
+		builderFactory: config.BuilderFactory,
+		buildStore:     config.BuildStore,
+		loggerFactory:  config.LoggerFactory,
 	}
+	poller.AbstractPoller.IPoller = poller
+
+	return poller
 }
 
-func (p *Poller) Start() error {
-	err := p.scheduler.AddFunc(p.interval, func() {
-		p.Poll()
-	})
-	if err != nil {
-		return err
-	}
-
-	p.scheduler.Start()
-
-	return nil
-}
-
-func (p *Poller) Stop() {
-	log.Info("Stopping build poller")
-	p.scheduler.Stop()
-}
-
-func (p *Poller) Poll() {
+func (p *BuildPoller) Poll() {
 	builds, err := p.buildStore.FindAllByState(BuildStatePending)
 	if err != nil {
 		log.Error(err)
+		return
 	}
 
+	var wg sync.WaitGroup
 	for _, build := range builds {
-		go p.runBuildProcess(build)
+		wg.Add(1)
+		go p.runBuildProcess(&wg, build)
 	}
+
+	wg.Wait()
 }
 
-func (p *Poller) runBuildProcess(build *Build) {
+func (p *BuildPoller) runBuildProcess(wg *sync.WaitGroup, build *Build) {
+	defer wg.Done()
+
 	if build.Project.Build == nil {
 		return
 	}
 
-	gc, err := p.gitProviderService.GetConfigForUrl(build.Project.Repository.Url)
-	if err != nil && !gitprovider.IsGitProviderNotFound(err) {
-		log.Error(err)
-		return
-	}
+	buildLogger := p.loggerFactory.CreateBuildLogger(build.Project.Name, build.Hash, logs.LogSourceBuilder)
+	defer buildLogger.Close()
 
-	builder, err := p.builderFactory.Create(build.Project, gc)
+	builder, err := p.builderFactory.Create(*build)
 	if err != nil {
-		log.Error(err)
+		p.handleBuildError(*build, builder, err, buildLogger)
 		return
 	}
 
 	build.State = BuildStateRunning
 	err = p.buildStore.Save(build)
 	if err != nil {
-		log.Error(err)
-	}
-
-	result, err := builder.Build()
-	if err != nil {
-		p.handleBuildError(*build, builder, err)
-		return
-	} else {
-		build = result
-	}
-
-	err = builder.Publish()
-	if err != nil {
-		p.handleBuildError(*build, builder, err)
+		p.handleBuildError(*build, builder, err, buildLogger)
 		return
 	}
 
+	image, user, err := builder.Build(*build)
+	if err != nil {
+		p.handleBuildError(*build, builder, err, buildLogger)
+		return
+	}
+
+	build.Image = image
+	build.User = user
+	build.State = BuildStateSuccess
 	err = p.buildStore.Save(build)
 	if err != nil {
-		log.Error(err)
+		p.handleBuildError(*build, builder, err, buildLogger)
+		return
+	}
+
+	err = builder.Publish(*build)
+	if err != nil {
+		p.handleBuildError(*build, builder, err, buildLogger)
+		return
+	}
+
+	build.State = BuildStatePublished
+	err = p.buildStore.Save(build)
+	if err != nil {
+		p.handleBuildError(*build, builder, err, buildLogger)
+		return
 	}
 
 	err = builder.CleanUp()
 	if err != nil {
-		log.Error(fmt.Sprintf("Error cleaning up build: %s\n", err.Error()))
+		errMsg := fmt.Sprintf("Error cleaning up build: %s\n", err.Error())
+		buildLogger.Write([]byte(errMsg + "\n"))
 		return
 	}
 }
 
-func (p *Poller) handleBuildError(build Build, builder IBuilder, err error) {
+func (p *BuildPoller) handleBuildError(build Build, builder IBuilder, err error, buildLogger logs.Logger) {
 	var errMsg string
 	errMsg += "################################################\n"
 	errMsg += fmt.Sprintf("#### BUILD FAILED FOR PROJECT %s: %s\n", build.Project.Name, err.Error())
 	errMsg += "################################################\n"
 
-	build.State = BuildStateFailure
+	build.State = BuildStateError
 	err = p.buildStore.Save(&build)
 	if err != nil {
 		errMsg += fmt.Sprintf("Error saving build: %s\n", err.Error())
@@ -138,5 +132,5 @@ func (p *Poller) handleBuildError(build Build, builder IBuilder, err error) {
 		errMsg += fmt.Sprintf("Error cleaning up build: %s\n", cleanupErr.Error())
 	}
 
-	log.Error(errMsg)
+	buildLogger.Write([]byte(errMsg + "\n"))
 }
