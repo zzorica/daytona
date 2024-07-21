@@ -6,12 +6,6 @@ package jetbrains
 type Ide struct {
 	ProductCode  string
 	Name         string
-	UrlTemplates UrlTemplates
-}
-
-type UrlTemplates struct {
-	Amd64 string
-	Arm64 string
 }
 
 type Id string

@@ -162,10 +162,10 @@ func openIDE(ideId string, activeProfile config.Profile, workspaceId string, pro
 		return ide.OpenTerminalSsh(activeProfile, workspaceId, projectName)
 	case "browser":
 		return ide.OpenBrowserIDE(activeProfile, workspaceId, projectName, projectProviderMetadata)
-	default:
-		_, ok := jetbrains.GetIdes()[jetbrains.Id(ideId)]
+	default: // any JetBrains IDE
+		jetbrainsIde, ok := jetbrains.GetIde(jetbrains.Id(ideId))
 		if ok {
-			return ide.OpenJetbrainsIDE(activeProfile, ideId, workspaceId, projectName)
+			return ide.OpenJetbrainsIDE(activeProfile, workspaceId, projectName, jetbrainsIde)
 		}
 	}
 
