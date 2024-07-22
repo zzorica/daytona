@@ -4,58 +4,61 @@
 package server
 
 import (
+	"encoding/json"
 	"io"
 	"os"
 
+	"github.com/daytonaio/daytona/pkg/logs"
 	frp_log "github.com/fatedier/frp/pkg/util/log"
+	"github.com/rifflock/lfshook"
 	log "github.com/sirupsen/logrus"
 )
 
 type logFormatter struct {
-	textFormatter *log.TextFormatter
-	file          *os.File
+	textFormatter log.TextFormatter
 }
 
 func (f *logFormatter) Format(entry *log.Entry) ([]byte, error) {
-	formatted, err := f.textFormatter.Format(entry)
+	// Format all entry fields
+	msg, err := f.textFormatter.Format(entry)
 	if err != nil {
 		return nil, err
 	}
 
-	if f.file != nil {
-		// Write to file
-		_, err = f.file.Write(formatted)
-		if err != nil {
-			return nil, err
-		}
+	logEntry := logs.LogEntry{
+		Source: string(logs.LogSourceServer),
+		// Trim log level and starting colors from text formatter
+		Msg:   string(msg)[14:],
+		Level: entry.Level.String(),
+		Time:  entry.Time,
 	}
+
+	content, err := json.Marshal(logEntry)
+	if err != nil {
+		return nil, err
+	}
+
+	formatted := append(content, []byte(logs.LogDelimiter)...)
 
 	return formatted, nil
 }
 
 func (s *Server) initLogs() error {
-	filePath := s.config.LogFilePath
-
-	file, err := os.OpenFile(filePath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-
-	logFormatter := &logFormatter{
-		textFormatter: &log.TextFormatter{
-			ForceColors: true,
+	log.AddHook(lfshook.NewHook(
+		s.config.LogFilePath,
+		&logFormatter{
+			textFormatter: log.TextFormatter{
+				DisableTimestamp: true,
+			},
 		},
-		file: file,
-	}
-
-	log.SetFormatter(logFormatter)
+	))
 
 	frpLogLevel := "error"
 	if os.Getenv("FRP_LOG_LEVEL") != "" {
 		frpLogLevel = os.Getenv("FRP_LOG_LEVEL")
 	}
 
-	frpOutput := filePath
+	frpOutput := s.config.LogFilePath
 	if os.Getenv("FRP_LOG_OUTPUT") != "" {
 		frpOutput = os.Getenv("FRP_LOG_OUTPUT")
 	}

@@ -5,9 +5,11 @@ package server
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/daytonaio/daytona/cmd/daytona/config"
 	"github.com/daytonaio/daytona/internal/util/apiclient"
+	"github.com/daytonaio/daytona/pkg/logs"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -38,13 +40,37 @@ var logsCmd = &cobra.Command{
 			log.Fatal(apiclient.HandleErrorResponse(res, err))
 		}
 
+		textFormatter := log.TextFormatter{
+			ForceColors:   true,
+			FullTimestamp: true,
+		}
+
 		for {
-			_, msg, err := ws.ReadMessage()
+			var logEntry logs.LogEntry
+			err := ws.ReadJSON(&logEntry)
 			if err != nil {
+				if !strings.Contains(err.Error(), "EOF") {
+					log.Error(err)
+				}
 				return
 			}
 
-			fmt.Println(string(msg))
+			level, err := log.ParseLevel(logEntry.Level)
+			if err != nil {
+				level = log.InfoLevel
+			}
+
+			line, err := textFormatter.Format(&log.Entry{
+				Time:    logEntry.Time,
+				Message: logEntry.Msg,
+				Level:   level,
+			})
+			if err != nil {
+				log.Error(err)
+				continue
+			}
+
+			fmt.Print(string(line))
 		}
 	},
 }

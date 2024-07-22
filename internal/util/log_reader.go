@@ -8,7 +8,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
+	"time"
 
 	"github.com/daytonaio/daytona/pkg/logs"
 )
@@ -38,18 +40,21 @@ func ReadLog(ctx context.Context, logReader io.Reader, follow bool, c chan []byt
 }
 
 func ReadJSONLog(ctx context.Context, logReader io.Reader, follow bool, c chan interface{}, errChan chan error) {
-	var buffer bytes.Buffer
+	data := []byte{}
 	reader := bufio.NewReader(logReader)
 	delimiter := []byte(logs.LogDelimiter)
 
 	for {
+		time.Sleep(1 * time.Second)
 		select {
 		case <-ctx.Done():
 			return
 		default:
 			byteChunk := make([]byte, 1024)
 			n, err := reader.Read(byteChunk)
+			fmt.Println(n)
 			if err != nil {
+				fmt.Println(err)
 				if err != io.EOF {
 					errChan <- err
 				} else if !follow {
@@ -57,13 +62,13 @@ func ReadJSONLog(ctx context.Context, logReader io.Reader, follow bool, c chan i
 					return
 				}
 			}
-			buffer.Write(byteChunk[:n])
-			data := buffer.Bytes()
+
+			data = append(data, byteChunk[:n]...)
 
 			index := bytes.Index(data, delimiter)
 
 			if index != -1 { // if the delimiter is found, process the log entry
-
+				fmt.Println(string(data[:index]))
 				var logEntry logs.LogEntry
 
 				err = json.Unmarshal(data[:index], &logEntry)
@@ -72,8 +77,7 @@ func ReadJSONLog(ctx context.Context, logReader io.Reader, follow bool, c chan i
 				}
 
 				c <- logEntry
-				buffer.Reset()
-				buffer.Write(data[index+len(delimiter):]) // write remaining data to buffer
+				data = data[index+len(delimiter):]
 			}
 		}
 	}

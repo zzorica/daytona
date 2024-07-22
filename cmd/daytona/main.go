@@ -47,6 +47,10 @@ func init() {
 
 	log.SetLevel(logLevel)
 
+	log.SetFormatter(&log.TextFormatter{
+		TimestampFormat: time.RFC3339,
+	})
+
 	zerologLevel, err := zerolog.ParseLevel(logLevel.String())
 	if err != nil {
 		zerologLevel = zerolog.ErrorLevel

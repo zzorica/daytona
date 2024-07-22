@@ -5,6 +5,7 @@ package logs
 
 import (
 	"io"
+	"time"
 )
 
 var LogDelimiter = "!-#_^*|\n"
@@ -23,12 +24,12 @@ const (
 )
 
 type LogEntry struct {
-	Source      string `json:"source"`
-	WorkspaceId string `json:"workspaceId"`
-	ProjectName string `json:"projectName"`
-	Msg         string `json:"msg"`
-	Level       string `json:"level"`
-	Time        string `json:"time"`
+	Source      string    `json:"source"`
+	WorkspaceId string    `json:"workspaceId"`
+	ProjectName string    `json:"projectName"`
+	Msg         string    `json:"msg"`
+	Level       string    `json:"level"`
+	Time        time.Time `json:"time"`
 }
 
 type LoggerFactory interface {
