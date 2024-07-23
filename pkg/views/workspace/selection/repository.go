@@ -14,7 +14,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func selectRepositoryPrompt(repositories []apiclient.GitRepository, index int, choiceChan chan<- string, parentId string, selectedReposParentMap map[string]bool, selectedRepos map[string]bool) {
+func selectRepositoryPrompt(repositories []apiclient.GitRepository, additionalProjectOrder int, choiceChan chan<- string, parentId string, selectedReposParentMap map[string]bool, selectedRepos map[string]bool) {
 	items := []list.Item{}
 	disabledReposCount := 0
 
@@ -25,7 +25,7 @@ func selectRepositoryPrompt(repositories []apiclient.GitRepository, index int, c
 		isDisabled := false
 
 		// Index > 1 indicates use of 'multi-project' command
-		if index > 1 && len(selectedRepos) > 0 && selectedRepos[url] {
+		if additionalProjectOrder > 1 && len(selectedRepos) > 0 && selectedRepos[url] {
 			title += statusMessageDangerStyle(" (Already selected)")
 			// isDisabled property helps in skipping over this specific repo option, refer to
 			// handling of up/down key press under update method in ./view.go file
@@ -39,8 +39,8 @@ func selectRepositoryPrompt(repositories []apiclient.GitRepository, index int, c
 	l := views.GetStyledSelectList(items)
 
 	title := "Choose a Repository"
-	if index > 1 {
-		title += fmt.Sprintf(" (Project #%d)", index)
+	if additionalProjectOrder > 1 {
+		title += fmt.Sprintf(" (Project #%d)", additionalProjectOrder)
 	}
 	l.Title = views.GetStyledMainTitle(title)
 	l.Styles.Title = titleStyle
@@ -67,10 +67,10 @@ func selectRepositoryPrompt(repositories []apiclient.GitRepository, index int, c
 	}
 }
 
-func GetRepositoryFromPrompt(repositories []apiclient.GitRepository, index int, parentId string, selectedReposParentMap map[string]bool, selectedRepos map[string]bool) *apiclient.GitRepository {
+func GetRepositoryFromPrompt(repositories []apiclient.GitRepository, additionalProjectOrder int, parentId string, selectedReposParentMap map[string]bool, selectedRepos map[string]bool) *apiclient.GitRepository {
 	choiceChan := make(chan string)
 
-	go selectRepositoryPrompt(repositories, index, choiceChan, parentId, selectedReposParentMap, selectedRepos)
+	go selectRepositoryPrompt(repositories, additionalProjectOrder, choiceChan, parentId, selectedReposParentMap, selectedRepos)
 
 	choice := <-choiceChan
 
