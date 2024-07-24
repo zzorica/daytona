@@ -5,8 +5,8 @@ package projectconfig
 
 import (
 	"errors"
-	"strings"
 
+	util "github.com/daytonaio/daytona/internal/util"
 	"github.com/daytonaio/daytona/pkg/server/projectconfig/dto"
 	"github.com/daytonaio/daytona/pkg/workspace/project/config"
 )
@@ -46,8 +46,7 @@ func (s *ProjectConfigService) FilterByGitUrl(url string) ([]*config.ProjectConf
 		return nil, err
 	}
 
-	url = strings.TrimSuffix(url, "/")
-	url = strings.TrimSuffix(url, ".git")
+	url = util.CleanUpRepositoryUrl(url)
 
 	var response []*config.ProjectConfig
 
@@ -56,8 +55,7 @@ func (s *ProjectConfigService) FilterByGitUrl(url string) ([]*config.ProjectConf
 			continue
 		}
 
-		currentUrl := strings.TrimSuffix(pc.Repository.Url, "/")
-		currentUrl = strings.TrimSuffix(currentUrl, ".git")
+		currentUrl := util.CleanUpRepositoryUrl(pc.Repository.Url)
 
 		if currentUrl != url {
 			continue
