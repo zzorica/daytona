@@ -4,6 +4,8 @@
 package dto
 
 import (
+	"strings"
+
 	"github.com/daytonaio/daytona/pkg/gitprovider"
 	"github.com/daytonaio/daytona/pkg/workspace"
 	"github.com/daytonaio/daytona/pkg/workspace/project"
@@ -67,6 +69,7 @@ type ProjectConfigDTO struct {
 	User       string           `json:"user"`
 	Build      *ProjectBuildDTO `json:"build,omitempty" gorm:"serializer:json"`
 	Repository RepositoryDTO    `gorm:"serializer:json"`
+	EnvVars    string           `json:"envVars"`
 	IsDefault  bool             `json:"isDefault"`
 }
 
@@ -91,18 +94,20 @@ func ToProjectConfigDTO(projectConfig *config.ProjectConfig) ProjectConfigDTO {
 		User:       projectConfig.User,
 		Build:      ToProjectBuildDTO(projectConfig.Build),
 		Repository: ToRepositoryDTO(projectConfig.Repository),
+		EnvVars:    ToEnvVarsString(projectConfig.EnvVars),
 		IsDefault:  projectConfig.IsDefault,
 	}
 }
 
-func ToProjectConfig(providerTargetDTO ProjectConfigDTO) *config.ProjectConfig {
+func ToProjectConfig(projectConfigDTO ProjectConfigDTO) *config.ProjectConfig {
 	return &config.ProjectConfig{
-		Name:       providerTargetDTO.Name,
-		Image:      providerTargetDTO.Image,
-		User:       providerTargetDTO.User,
-		Build:      ToProjectBuild(providerTargetDTO.Build),
-		Repository: ToRepository(providerTargetDTO.Repository),
-		IsDefault:  providerTargetDTO.IsDefault,
+		Name:       projectConfigDTO.Name,
+		Image:      projectConfigDTO.Image,
+		User:       projectConfigDTO.User,
+		Build:      ToProjectBuild(projectConfigDTO.Build),
+		Repository: ToRepository(projectConfigDTO.Repository),
+		EnvVars:    ToEnvVarsMap(projectConfigDTO.EnvVars),
+		IsDefault:  projectConfigDTO.IsDefault,
 	}
 }
 
@@ -266,4 +271,40 @@ func ToProjectBuild(buildDTO *ProjectBuildDTO) *build.ProjectBuild {
 			DevContainerFilePath: buildDTO.Devcontainer.DevContainerFilePath,
 		},
 	}
+}
+
+// TODO: handle special characters in env vars (e.g. newline, backslash, equals)
+
+func ToEnvVarsString(envVars map[string]string) string {
+	if envVars == nil {
+		return ""
+	}
+
+	var builder strings.Builder
+	for key, value := range envVars {
+		builder.WriteString(key)
+		builder.WriteString("=")
+		builder.WriteString(value)
+		builder.WriteString("\n")
+	}
+
+	result := builder.String()
+	return strings.TrimSuffix(result, "\n")
+}
+
+func ToEnvVarsMap(envVars string) map[string]string {
+	if envVars == "" {
+		return nil
+	}
+
+	envMap := make(map[string]string)
+	lines := strings.Split(envVars, "\n")
+	for _, line := range lines {
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) == 2 {
+			envMap[parts[0]] = parts[1]
+		}
+	}
+
+	return envMap
 }
