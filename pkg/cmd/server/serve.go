@@ -101,7 +101,7 @@ var ServeCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		projectConfigStore, err := db.NewProjectConfigStore(dbConnection)
+		projectConfigStore, err := db.NewConfigStore(dbConnection)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -141,7 +141,7 @@ var ServeCmd = &cobra.Command{
 			Store: containerRegistryStore,
 		})
 
-		projectConfigService := projectconfig.NewProjectConfigService(projectconfig.ProjectConfigServiceConfig{
+		projectConfigService := projectconfig.NewConfigService(projectconfig.ProjectConfigServiceConfig{
 			ConfigStore: projectConfigStore,
 		})
 

@@ -4,8 +4,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**ExistingProjectConfig** | Pointer to [**ExistingProjectConfigDTO**](ExistingProjectConfigDTO.md) |  | [optional] 
-**NewProjectConfig** | Pointer to [**CreateProjectConfigDTO**](CreateProjectConfigDTO.md) |  | [optional] 
+**ExistingConfig** | Pointer to [**ExistingConfigDTO**](ExistingConfigDTO.md) |  | [optional] 
+**NewConfig** | Pointer to [**CreateProjectConfigDTO**](CreateProjectConfigDTO.md) |  | [optional] 
 
 ## Methods
 
@@ -26,55 +26,55 @@ NewCreateProjectDTOWithDefaults instantiates a new CreateProjectDTO object
 This constructor will only assign default values to properties that have it defined,
 but it doesn't guarantee that properties required by API are set
 
-### GetExistingProjectConfig
+### GetExistingConfig
 
-`func (o *CreateProjectDTO) GetExistingProjectConfig() ExistingProjectConfigDTO`
+`func (o *CreateProjectDTO) GetExistingConfig() ExistingConfigDTO`
 
-GetExistingProjectConfig returns the ExistingProjectConfig field if non-nil, zero value otherwise.
+GetExistingConfig returns the ExistingConfig field if non-nil, zero value otherwise.
 
-### GetExistingProjectConfigOk
+### GetExistingConfigOk
 
-`func (o *CreateProjectDTO) GetExistingProjectConfigOk() (*ExistingProjectConfigDTO, bool)`
+`func (o *CreateProjectDTO) GetExistingConfigOk() (*ExistingConfigDTO, bool)`
 
-GetExistingProjectConfigOk returns a tuple with the ExistingProjectConfig field if it's non-nil, zero value otherwise
+GetExistingConfigOk returns a tuple with the ExistingConfig field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
-### SetExistingProjectConfig
+### SetExistingConfig
 
-`func (o *CreateProjectDTO) SetExistingProjectConfig(v ExistingProjectConfigDTO)`
+`func (o *CreateProjectDTO) SetExistingConfig(v ExistingConfigDTO)`
 
-SetExistingProjectConfig sets ExistingProjectConfig field to given value.
+SetExistingConfig sets ExistingConfig field to given value.
 
-### HasExistingProjectConfig
+### HasExistingConfig
 
-`func (o *CreateProjectDTO) HasExistingProjectConfig() bool`
+`func (o *CreateProjectDTO) HasExistingConfig() bool`
 
-HasExistingProjectConfig returns a boolean if a field has been set.
+HasExistingConfig returns a boolean if a field has been set.
 
-### GetNewProjectConfig
+### GetNewConfig
 
-`func (o *CreateProjectDTO) GetNewProjectConfig() CreateProjectConfigDTO`
+`func (o *CreateProjectDTO) GetNewConfig() CreateProjectConfigDTO`
 
-GetNewProjectConfig returns the NewProjectConfig field if non-nil, zero value otherwise.
+GetNewConfig returns the NewConfig field if non-nil, zero value otherwise.
 
-### GetNewProjectConfigOk
+### GetNewConfigOk
 
-`func (o *CreateProjectDTO) GetNewProjectConfigOk() (*CreateProjectConfigDTO, bool)`
+`func (o *CreateProjectDTO) GetNewConfigOk() (*CreateProjectConfigDTO, bool)`
 
-GetNewProjectConfigOk returns a tuple with the NewProjectConfig field if it's non-nil, zero value otherwise
+GetNewConfigOk returns a tuple with the NewConfig field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
-### SetNewProjectConfig
+### SetNewConfig
 
-`func (o *CreateProjectDTO) SetNewProjectConfig(v CreateProjectConfigDTO)`
+`func (o *CreateProjectDTO) SetNewConfig(v CreateProjectConfigDTO)`
 
-SetNewProjectConfig sets NewProjectConfig field to given value.
+SetNewConfig sets NewConfig field to given value.
 
-### HasNewProjectConfig
+### HasNewConfig
 
-`func (o *CreateProjectDTO) HasNewProjectConfig() bool`
+`func (o *CreateProjectDTO) HasNewConfig() bool`
 
-HasNewProjectConfig returns a boolean if a field has been set.
+HasNewConfig returns a boolean if a field has been set.
 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

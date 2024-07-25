@@ -42,7 +42,7 @@ var projectConfigUpdateCmd = &cobra.Command{
 		}
 
 		projects = append(projects, apiclient.CreateProjectDTO{
-			NewProjectConfig: &apiclient.CreateProjectConfigDTO{
+			NewConfig: &apiclient.CreateProjectConfigDTO{
 				Name: projectConfig.Name,
 				Source: &apiclient.CreateProjectConfigSourceDTO{
 					Repository: projectConfig.Repository,
@@ -69,8 +69,8 @@ var projectConfigUpdateCmd = &cobra.Command{
 			projectDefaults.ImageUser = projectConfig.User
 		}
 
-		if projectConfig.Build != nil && projectConfig.Build.Devcontainer != nil && projectConfig.Build.Devcontainer.DevContainerFilePath != nil {
-			projectDefaults.DevcontainerFilePath = *projectConfig.Build.Devcontainer.DevContainerFilePath
+		if projectConfig.Build != nil && projectConfig.Build.Devcontainer != nil && projectConfig.Build.Devcontainer.FilePath != nil {
+			projectDefaults.DevcontainerFilePath = *projectConfig.Build.Devcontainer.FilePath
 		}
 
 		create.ProjectsConfigurationChanged, err = create.ConfigureProjects(&projects, *projectDefaults)
@@ -80,11 +80,11 @@ var projectConfigUpdateCmd = &cobra.Command{
 
 		newProjectConfig := apiclient.CreateProjectConfigDTO{
 			Name:  projectConfig.Name,
-			Build: projects[0].NewProjectConfig.Build,
-			Image: projects[0].NewProjectConfig.Image,
-			User:  projects[0].NewProjectConfig.User,
+			Build: projects[0].NewConfig.Build,
+			Image: projects[0].NewConfig.Image,
+			User:  projects[0].NewConfig.User,
 			Source: &apiclient.CreateProjectConfigSourceDTO{
-				Repository: projects[0].NewProjectConfig.Source.Repository,
+				Repository: projects[0].NewConfig.Source.Repository,
 			},
 		}
 

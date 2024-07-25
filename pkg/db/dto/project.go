@@ -168,7 +168,7 @@ func ToProjectStateDTO(state *project.ProjectState) *ProjectStateDTO {
 	}
 }
 
-func ToProjectBuildDTO(build *build.ProjectBuild) *ProjectBuildDTO {
+func ToProjectBuildDTO(build *build.ProjectBuildConfig) *ProjectBuildDTO {
 	if build == nil {
 		return nil
 	}
@@ -179,7 +179,7 @@ func ToProjectBuildDTO(build *build.ProjectBuild) *ProjectBuildDTO {
 
 	return &ProjectBuildDTO{
 		Devcontainer: &ProjectBuildDevcontainerDTO{
-			DevContainerFilePath: build.Devcontainer.DevContainerFilePath,
+			DevContainerFilePath: build.Devcontainer.FilePath,
 		},
 	}
 }
@@ -257,18 +257,18 @@ func ToRepository(repoDTO RepositoryDTO) *gitprovider.GitRepository {
 	return &repo
 }
 
-func ToProjectBuild(buildDTO *ProjectBuildDTO) *build.ProjectBuild {
+func ToProjectBuild(buildDTO *ProjectBuildDTO) *build.ProjectBuildConfig {
 	if buildDTO == nil {
 		return nil
 	}
 
 	if buildDTO.Devcontainer == nil {
-		return &build.ProjectBuild{}
+		return &build.ProjectBuildConfig{}
 	}
 
-	return &build.ProjectBuild{
-		Devcontainer: &build.ProjectBuildDevcontainer{
-			DevContainerFilePath: buildDTO.Devcontainer.DevContainerFilePath,
+	return &build.ProjectBuildConfig{
+		Devcontainer: &build.DevcontainerConfig{
+			FilePath: buildDTO.Devcontainer.DevContainerFilePath,
 		},
 	}
 }

@@ -19,8 +19,8 @@ var _ MappedNullable = &CreateProjectDTO{}
 
 // CreateProjectDTO struct for CreateProjectDTO
 type CreateProjectDTO struct {
-	ExistingProjectConfig *ExistingProjectConfigDTO `json:"existingProjectConfig,omitempty"`
-	NewProjectConfig      *CreateProjectConfigDTO   `json:"newProjectConfig,omitempty"`
+	ExistingConfig *ExistingConfigDTO      `json:"existingConfig,omitempty"`
+	NewConfig      *CreateProjectConfigDTO `json:"newConfig,omitempty"`
 }
 
 // NewCreateProjectDTO instantiates a new CreateProjectDTO object
@@ -40,68 +40,68 @@ func NewCreateProjectDTOWithDefaults() *CreateProjectDTO {
 	return &this
 }
 
-// GetExistingProjectConfig returns the ExistingProjectConfig field value if set, zero value otherwise.
-func (o *CreateProjectDTO) GetExistingProjectConfig() ExistingProjectConfigDTO {
-	if o == nil || IsNil(o.ExistingProjectConfig) {
-		var ret ExistingProjectConfigDTO
+// GetExistingConfig returns the ExistingConfig field value if set, zero value otherwise.
+func (o *CreateProjectDTO) GetExistingConfig() ExistingConfigDTO {
+	if o == nil || IsNil(o.ExistingConfig) {
+		var ret ExistingConfigDTO
 		return ret
 	}
-	return *o.ExistingProjectConfig
+	return *o.ExistingConfig
 }
 
-// GetExistingProjectConfigOk returns a tuple with the ExistingProjectConfig field value if set, nil otherwise
+// GetExistingConfigOk returns a tuple with the ExistingConfig field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *CreateProjectDTO) GetExistingProjectConfigOk() (*ExistingProjectConfigDTO, bool) {
-	if o == nil || IsNil(o.ExistingProjectConfig) {
+func (o *CreateProjectDTO) GetExistingConfigOk() (*ExistingConfigDTO, bool) {
+	if o == nil || IsNil(o.ExistingConfig) {
 		return nil, false
 	}
-	return o.ExistingProjectConfig, true
+	return o.ExistingConfig, true
 }
 
-// HasExistingProjectConfig returns a boolean if a field has been set.
-func (o *CreateProjectDTO) HasExistingProjectConfig() bool {
-	if o != nil && !IsNil(o.ExistingProjectConfig) {
+// HasExistingConfig returns a boolean if a field has been set.
+func (o *CreateProjectDTO) HasExistingConfig() bool {
+	if o != nil && !IsNil(o.ExistingConfig) {
 		return true
 	}
 
 	return false
 }
 
-// SetExistingProjectConfig gets a reference to the given ExistingProjectConfigDTO and assigns it to the ExistingProjectConfig field.
-func (o *CreateProjectDTO) SetExistingProjectConfig(v ExistingProjectConfigDTO) {
-	o.ExistingProjectConfig = &v
+// SetExistingConfig gets a reference to the given ExistingConfigDTO and assigns it to the ExistingConfig field.
+func (o *CreateProjectDTO) SetExistingConfig(v ExistingConfigDTO) {
+	o.ExistingConfig = &v
 }
 
-// GetNewProjectConfig returns the NewProjectConfig field value if set, zero value otherwise.
-func (o *CreateProjectDTO) GetNewProjectConfig() CreateProjectConfigDTO {
-	if o == nil || IsNil(o.NewProjectConfig) {
+// GetNewConfig returns the NewConfig field value if set, zero value otherwise.
+func (o *CreateProjectDTO) GetNewConfig() CreateProjectConfigDTO {
+	if o == nil || IsNil(o.NewConfig) {
 		var ret CreateProjectConfigDTO
 		return ret
 	}
-	return *o.NewProjectConfig
+	return *o.NewConfig
 }
 
-// GetNewProjectConfigOk returns a tuple with the NewProjectConfig field value if set, nil otherwise
+// GetNewConfigOk returns a tuple with the NewConfig field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *CreateProjectDTO) GetNewProjectConfigOk() (*CreateProjectConfigDTO, bool) {
-	if o == nil || IsNil(o.NewProjectConfig) {
+func (o *CreateProjectDTO) GetNewConfigOk() (*CreateProjectConfigDTO, bool) {
+	if o == nil || IsNil(o.NewConfig) {
 		return nil, false
 	}
-	return o.NewProjectConfig, true
+	return o.NewConfig, true
 }
 
-// HasNewProjectConfig returns a boolean if a field has been set.
-func (o *CreateProjectDTO) HasNewProjectConfig() bool {
-	if o != nil && !IsNil(o.NewProjectConfig) {
+// HasNewConfig returns a boolean if a field has been set.
+func (o *CreateProjectDTO) HasNewConfig() bool {
+	if o != nil && !IsNil(o.NewConfig) {
 		return true
 	}
 
 	return false
 }
 
-// SetNewProjectConfig gets a reference to the given CreateProjectConfigDTO and assigns it to the NewProjectConfig field.
-func (o *CreateProjectDTO) SetNewProjectConfig(v CreateProjectConfigDTO) {
-	o.NewProjectConfig = &v
+// SetNewConfig gets a reference to the given CreateProjectConfigDTO and assigns it to the NewConfig field.
+func (o *CreateProjectDTO) SetNewConfig(v CreateProjectConfigDTO) {
+	o.NewConfig = &v
 }
 
 func (o CreateProjectDTO) MarshalJSON() ([]byte, error) {
@@ -114,11 +114,11 @@ func (o CreateProjectDTO) MarshalJSON() ([]byte, error) {
 
 func (o CreateProjectDTO) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.ExistingProjectConfig) {
-		toSerialize["existingProjectConfig"] = o.ExistingProjectConfig
+	if !IsNil(o.ExistingConfig) {
+		toSerialize["existingConfig"] = o.ExistingConfig
 	}
-	if !IsNil(o.NewProjectConfig) {
-		toSerialize["newProjectConfig"] = o.NewProjectConfig
+	if !IsNil(o.NewConfig) {
+		toSerialize["newConfig"] = o.NewConfig
 	}
 	return toSerialize, nil
 }

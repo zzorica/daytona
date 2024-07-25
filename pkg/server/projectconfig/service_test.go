@@ -82,7 +82,7 @@ type ProjectConfigServiceTestSuite struct {
 	projectConfigStore   config.Store
 }
 
-func NewProjectConfigServiceTestSuite() *ProjectConfigServiceTestSuite {
+func NewConfigServiceTestSuite() *ProjectConfigServiceTestSuite {
 	return &ProjectConfigServiceTestSuite{}
 }
 
@@ -107,7 +107,7 @@ func (s *ProjectConfigServiceTestSuite) SetupTest() {
 	}
 
 	s.projectConfigStore = projectconfig_internal.NewInMemoryProjectConfigStore()
-	s.projectConfigService = projectconfig.NewProjectConfigService(projectconfig.ProjectConfigServiceConfig{
+	s.projectConfigService = projectconfig.NewConfigService(projectconfig.ProjectConfigServiceConfig{
 		ConfigStore: s.projectConfigStore,
 	})
 
@@ -117,7 +117,7 @@ func (s *ProjectConfigServiceTestSuite) SetupTest() {
 }
 
 func TestProjectConfigService(t *testing.T) {
-	suite.Run(t, NewProjectConfigServiceTestSuite())
+	suite.Run(t, NewConfigServiceTestSuite())
 }
 
 func (s *ProjectConfigServiceTestSuite) TestList() {

@@ -14,35 +14,35 @@ import (
 	"encoding/json"
 )
 
-// checks if the ExistingProjectConfigDTO type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &ExistingProjectConfigDTO{}
+// checks if the ExistingConfigDTO type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &ExistingConfigDTO{}
 
-// ExistingProjectConfigDTO struct for ExistingProjectConfigDTO
-type ExistingProjectConfigDTO struct {
+// ExistingConfigDTO struct for ExistingConfigDTO
+type ExistingConfigDTO struct {
 	Branch      *string `json:"branch,omitempty"`
 	ConfigName  *string `json:"configName,omitempty"`
 	ProjectName *string `json:"projectName,omitempty"`
 }
 
-// NewExistingProjectConfigDTO instantiates a new ExistingProjectConfigDTO object
+// NewExistingConfigDTO instantiates a new ExistingConfigDTO object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewExistingProjectConfigDTO() *ExistingProjectConfigDTO {
-	this := ExistingProjectConfigDTO{}
+func NewExistingConfigDTO() *ExistingConfigDTO {
+	this := ExistingConfigDTO{}
 	return &this
 }
 
-// NewExistingProjectConfigDTOWithDefaults instantiates a new ExistingProjectConfigDTO object
+// NewExistingConfigDTOWithDefaults instantiates a new ExistingConfigDTO object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewExistingProjectConfigDTOWithDefaults() *ExistingProjectConfigDTO {
-	this := ExistingProjectConfigDTO{}
+func NewExistingConfigDTOWithDefaults() *ExistingConfigDTO {
+	this := ExistingConfigDTO{}
 	return &this
 }
 
 // GetBranch returns the Branch field value if set, zero value otherwise.
-func (o *ExistingProjectConfigDTO) GetBranch() string {
+func (o *ExistingConfigDTO) GetBranch() string {
 	if o == nil || IsNil(o.Branch) {
 		var ret string
 		return ret
@@ -52,7 +52,7 @@ func (o *ExistingProjectConfigDTO) GetBranch() string {
 
 // GetBranchOk returns a tuple with the Branch field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ExistingProjectConfigDTO) GetBranchOk() (*string, bool) {
+func (o *ExistingConfigDTO) GetBranchOk() (*string, bool) {
 	if o == nil || IsNil(o.Branch) {
 		return nil, false
 	}
@@ -60,7 +60,7 @@ func (o *ExistingProjectConfigDTO) GetBranchOk() (*string, bool) {
 }
 
 // HasBranch returns a boolean if a field has been set.
-func (o *ExistingProjectConfigDTO) HasBranch() bool {
+func (o *ExistingConfigDTO) HasBranch() bool {
 	if o != nil && !IsNil(o.Branch) {
 		return true
 	}
@@ -69,12 +69,12 @@ func (o *ExistingProjectConfigDTO) HasBranch() bool {
 }
 
 // SetBranch gets a reference to the given string and assigns it to the Branch field.
-func (o *ExistingProjectConfigDTO) SetBranch(v string) {
+func (o *ExistingConfigDTO) SetBranch(v string) {
 	o.Branch = &v
 }
 
 // GetConfigName returns the ConfigName field value if set, zero value otherwise.
-func (o *ExistingProjectConfigDTO) GetConfigName() string {
+func (o *ExistingConfigDTO) GetConfigName() string {
 	if o == nil || IsNil(o.ConfigName) {
 		var ret string
 		return ret
@@ -84,7 +84,7 @@ func (o *ExistingProjectConfigDTO) GetConfigName() string {
 
 // GetConfigNameOk returns a tuple with the ConfigName field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ExistingProjectConfigDTO) GetConfigNameOk() (*string, bool) {
+func (o *ExistingConfigDTO) GetConfigNameOk() (*string, bool) {
 	if o == nil || IsNil(o.ConfigName) {
 		return nil, false
 	}
@@ -92,7 +92,7 @@ func (o *ExistingProjectConfigDTO) GetConfigNameOk() (*string, bool) {
 }
 
 // HasConfigName returns a boolean if a field has been set.
-func (o *ExistingProjectConfigDTO) HasConfigName() bool {
+func (o *ExistingConfigDTO) HasConfigName() bool {
 	if o != nil && !IsNil(o.ConfigName) {
 		return true
 	}
@@ -101,12 +101,12 @@ func (o *ExistingProjectConfigDTO) HasConfigName() bool {
 }
 
 // SetConfigName gets a reference to the given string and assigns it to the ConfigName field.
-func (o *ExistingProjectConfigDTO) SetConfigName(v string) {
+func (o *ExistingConfigDTO) SetConfigName(v string) {
 	o.ConfigName = &v
 }
 
 // GetProjectName returns the ProjectName field value if set, zero value otherwise.
-func (o *ExistingProjectConfigDTO) GetProjectName() string {
+func (o *ExistingConfigDTO) GetProjectName() string {
 	if o == nil || IsNil(o.ProjectName) {
 		var ret string
 		return ret
@@ -116,7 +116,7 @@ func (o *ExistingProjectConfigDTO) GetProjectName() string {
 
 // GetProjectNameOk returns a tuple with the ProjectName field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ExistingProjectConfigDTO) GetProjectNameOk() (*string, bool) {
+func (o *ExistingConfigDTO) GetProjectNameOk() (*string, bool) {
 	if o == nil || IsNil(o.ProjectName) {
 		return nil, false
 	}
@@ -124,7 +124,7 @@ func (o *ExistingProjectConfigDTO) GetProjectNameOk() (*string, bool) {
 }
 
 // HasProjectName returns a boolean if a field has been set.
-func (o *ExistingProjectConfigDTO) HasProjectName() bool {
+func (o *ExistingConfigDTO) HasProjectName() bool {
 	if o != nil && !IsNil(o.ProjectName) {
 		return true
 	}
@@ -133,11 +133,11 @@ func (o *ExistingProjectConfigDTO) HasProjectName() bool {
 }
 
 // SetProjectName gets a reference to the given string and assigns it to the ProjectName field.
-func (o *ExistingProjectConfigDTO) SetProjectName(v string) {
+func (o *ExistingConfigDTO) SetProjectName(v string) {
 	o.ProjectName = &v
 }
 
-func (o ExistingProjectConfigDTO) MarshalJSON() ([]byte, error) {
+func (o ExistingConfigDTO) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -145,7 +145,7 @@ func (o ExistingProjectConfigDTO) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o ExistingProjectConfigDTO) ToMap() (map[string]interface{}, error) {
+func (o ExistingConfigDTO) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if !IsNil(o.Branch) {
 		toSerialize["branch"] = o.Branch
@@ -159,38 +159,38 @@ func (o ExistingProjectConfigDTO) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-type NullableExistingProjectConfigDTO struct {
-	value *ExistingProjectConfigDTO
+type NullableExistingConfigDTO struct {
+	value *ExistingConfigDTO
 	isSet bool
 }
 
-func (v NullableExistingProjectConfigDTO) Get() *ExistingProjectConfigDTO {
+func (v NullableExistingConfigDTO) Get() *ExistingConfigDTO {
 	return v.value
 }
 
-func (v *NullableExistingProjectConfigDTO) Set(val *ExistingProjectConfigDTO) {
+func (v *NullableExistingConfigDTO) Set(val *ExistingConfigDTO) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableExistingProjectConfigDTO) IsSet() bool {
+func (v NullableExistingConfigDTO) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableExistingProjectConfigDTO) Unset() {
+func (v *NullableExistingConfigDTO) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableExistingProjectConfigDTO(val *ExistingProjectConfigDTO) *NullableExistingProjectConfigDTO {
-	return &NullableExistingProjectConfigDTO{value: val, isSet: true}
+func NewNullableExistingConfigDTO(val *ExistingConfigDTO) *NullableExistingConfigDTO {
+	return &NullableExistingConfigDTO{value: val, isSet: true}
 }
 
-func (v NullableExistingProjectConfigDTO) MarshalJSON() ([]byte, error) {
+func (v NullableExistingConfigDTO) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableExistingProjectConfigDTO) UnmarshalJSON(src []byte) error {
+func (v *NullableExistingConfigDTO) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

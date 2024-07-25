@@ -102,28 +102,28 @@ var CreateCmd = &cobra.Command{
 		visited := make(map[string]bool)
 
 		for i := range projects {
-			if projects[i].ExistingProjectConfig != nil {
+			if projects[i].ExistingConfig != nil {
 				continue
 			}
-			if projects[i].NewProjectConfig == nil ||
-				projects[i].NewProjectConfig.Source == nil ||
-				projects[i].NewProjectConfig.Source.Repository == nil ||
-				projects[i].NewProjectConfig.Source.Repository.Url == nil {
+			if projects[i].NewConfig == nil ||
+				projects[i].NewConfig.Source == nil ||
+				projects[i].NewConfig.Source.Repository == nil ||
+				projects[i].NewConfig.Source.Repository.Url == nil {
 				log.Fatal("Error: repository url is required")
 			}
-			if visited[*projects[i].NewProjectConfig.Source.Repository.Url] {
-				log.Fatalf("Error: duplicate repository url: %s", *projects[i].NewProjectConfig.Source.Repository.Url)
+			if visited[*projects[i].NewConfig.Source.Repository.Url] {
+				log.Fatalf("Error: duplicate repository url: %s", *projects[i].NewConfig.Source.Repository.Url)
 			}
-			visited[*projects[i].NewProjectConfig.Source.Repository.Url] = true
-			projects[i].NewProjectConfig.EnvVars = workspace_util.GetEnvVariables(&projects[i], profileData)
+			visited[*projects[i].NewConfig.Source.Repository.Url] = true
+			projects[i].NewConfig.EnvVars = workspace_util.GetEnvVariables(&projects[i], profileData)
 		}
 
 		projectNames := []string{}
 		for _, project := range projects {
-			if project.ExistingProjectConfig != nil && *project.ExistingProjectConfig.ConfigName != "" {
-				projectNames = append(projectNames, *project.ExistingProjectConfig.ConfigName)
-			} else if project.NewProjectConfig != nil && project.NewProjectConfig.Name != nil {
-				projectNames = append(projectNames, *project.NewProjectConfig.Name)
+			if project.ExistingConfig != nil && *project.ExistingConfig.ConfigName != "" {
+				projectNames = append(projectNames, *project.ExistingConfig.ConfigName)
+			} else if project.NewConfig != nil && project.NewConfig.Name != nil {
+				projectNames = append(projectNames, *project.NewConfig.Name)
 			}
 		}
 
@@ -367,7 +367,7 @@ func processCmdArguments(args []string, apiClient *apiclient.APIClient, projects
 		projectConfig, res, err := apiClient.ProjectConfigAPI.GetDefaultProjectConfig(ctx, encodedURLParam).Execute()
 		if err == nil {
 			project := &apiclient.CreateProjectDTO{
-				ExistingProjectConfig: &apiclient.ExistingProjectConfigDTO{
+				ExistingConfig: &apiclient.ExistingConfigDTO{
 					ConfigName:  projectConfig.Name,
 					ProjectName: projectConfig.Name,
 				},
@@ -392,12 +392,12 @@ func processCmdArguments(args []string, apiClient *apiclient.APIClient, projects
 	}
 
 	project := &apiclient.CreateProjectDTO{
-		NewProjectConfig: &apiclient.CreateProjectConfigDTO{
+		NewConfig: &apiclient.CreateProjectConfigDTO{
 			Name: &projectName,
 			Source: &apiclient.CreateProjectConfigSourceDTO{
 				Repository: repoResponse,
 			},
-			Build: &apiclient.ProjectBuild{},
+			Build: &apiclient.ProjectBuildConfig{},
 		},
 	}
 
@@ -406,17 +406,17 @@ func processCmdArguments(args []string, apiClient *apiclient.APIClient, projects
 		if devcontainerPathFlag != "" {
 			devcontainerFilePath = devcontainerPathFlag
 		}
-		project.NewProjectConfig.Build.Devcontainer = &apiclient.ProjectBuildDevcontainer{
-			DevContainerFilePath: &devcontainerFilePath,
+		project.NewConfig.Build.Devcontainer = &apiclient.DevcontainerConfig{
+			FilePath: &devcontainerFilePath,
 		}
 
 	}
 
 	if builderFlag == create.NONE || customImageFlag != "" || customImageUserFlag != "" {
-		project.NewProjectConfig.Build = nil
+		project.NewConfig.Build = nil
 		if customImageFlag != "" || customImageUserFlag != "" {
-			project.NewProjectConfig.Image = &customImageFlag
-			project.NewProjectConfig.User = &customImageUserFlag
+			project.NewConfig.Image = &customImageFlag
+			project.NewConfig.User = &customImageUserFlag
 		}
 	}
 
@@ -440,10 +440,10 @@ func waitForDial(tsConn *tsnet.Server, workspaceId string, projectName string) e
 
 func getWorkspaceFirstProjectName(project apiclient.CreateProjectDTO) string {
 	var firstProjectName string
-	if project.ExistingProjectConfig != nil && project.ExistingProjectConfig.ConfigName != nil {
-		firstProjectName = *project.ExistingProjectConfig.ConfigName
-	} else if project.NewProjectConfig != nil && project.NewProjectConfig.Name != nil {
-		firstProjectName = *project.NewProjectConfig.Name
+	if project.ExistingConfig != nil && project.ExistingConfig.ConfigName != nil {
+		firstProjectName = *project.ExistingConfig.ConfigName
+	} else if project.NewConfig != nil && project.NewConfig.Name != nil {
+		firstProjectName = *project.NewConfig.Name
 	}
 	return firstProjectName
 }

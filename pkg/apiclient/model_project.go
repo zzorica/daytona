@@ -19,15 +19,15 @@ var _ MappedNullable = &Project{}
 
 // Project struct for Project
 type Project struct {
-	Build       *ProjectBuild  `json:"build,omitempty"`
-	Default     *bool          `json:"default,omitempty"`
-	Image       *string        `json:"image,omitempty"`
-	Name        *string        `json:"name,omitempty"`
-	Repository  *GitRepository `json:"repository,omitempty"`
-	State       *ProjectState  `json:"state,omitempty"`
-	Target      *string        `json:"target,omitempty"`
-	User        *string        `json:"user,omitempty"`
-	WorkspaceId *string        `json:"workspaceId,omitempty"`
+	Build       *ProjectBuildConfig `json:"build,omitempty"`
+	Default     *bool               `json:"default,omitempty"`
+	Image       *string             `json:"image,omitempty"`
+	Name        *string             `json:"name,omitempty"`
+	Repository  *GitRepository      `json:"repository,omitempty"`
+	State       *ProjectState       `json:"state,omitempty"`
+	Target      *string             `json:"target,omitempty"`
+	User        *string             `json:"user,omitempty"`
+	WorkspaceId *string             `json:"workspaceId,omitempty"`
 }
 
 // NewProject instantiates a new Project object
@@ -48,9 +48,9 @@ func NewProjectWithDefaults() *Project {
 }
 
 // GetBuild returns the Build field value if set, zero value otherwise.
-func (o *Project) GetBuild() ProjectBuild {
+func (o *Project) GetBuild() ProjectBuildConfig {
 	if o == nil || IsNil(o.Build) {
-		var ret ProjectBuild
+		var ret ProjectBuildConfig
 		return ret
 	}
 	return *o.Build
@@ -58,7 +58,7 @@ func (o *Project) GetBuild() ProjectBuild {
 
 // GetBuildOk returns a tuple with the Build field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *Project) GetBuildOk() (*ProjectBuild, bool) {
+func (o *Project) GetBuildOk() (*ProjectBuildConfig, bool) {
 	if o == nil || IsNil(o.Build) {
 		return nil, false
 	}
@@ -74,8 +74,8 @@ func (o *Project) HasBuild() bool {
 	return false
 }
 
-// SetBuild gets a reference to the given ProjectBuild and assigns it to the Build field.
-func (o *Project) SetBuild(v ProjectBuild) {
+// SetBuild gets a reference to the given ProjectBuildConfig and assigns it to the Build field.
+func (o *Project) SetBuild(v ProjectBuildConfig) {
 	o.Build = &v
 }
 

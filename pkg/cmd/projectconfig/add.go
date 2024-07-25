@@ -81,15 +81,15 @@ var projectConfigAddCmd = &cobra.Command{
 			log.Fatal("no projects found")
 		}
 
-		if projects[0].NewProjectConfig == nil {
+		if projects[0].NewConfig == nil {
 			log.Fatal("project config is required")
 		}
 
-		if projects[0].NewProjectConfig.Name == nil {
+		if projects[0].NewConfig.Name == nil {
 			log.Fatal("project config name is required")
 		}
 
-		initialSuggestion := *projects[0].NewProjectConfig.Name
+		initialSuggestion := *projects[0].NewConfig.Name
 
 		suggestedName := workspace_util.GetSuggestedName(initialSuggestion, existingProjectConfigNames)
 
@@ -111,11 +111,11 @@ var projectConfigAddCmd = &cobra.Command{
 
 		newProjectConfig := apiclient.CreateProjectConfigDTO{
 			Name:  &chosenName,
-			Build: projects[0].NewProjectConfig.Build,
-			Image: projects[0].NewProjectConfig.Image,
-			User:  projects[0].NewProjectConfig.User,
+			Build: projects[0].NewConfig.Build,
+			Image: projects[0].NewConfig.Image,
+			User:  projects[0].NewConfig.User,
 			Source: &apiclient.CreateProjectConfigSourceDTO{
-				Repository: projects[0].NewProjectConfig.Source.Repository,
+				Repository: projects[0].NewConfig.Source.Repository,
 			},
 		}
 

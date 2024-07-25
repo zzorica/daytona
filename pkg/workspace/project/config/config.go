@@ -12,7 +12,7 @@ type ProjectConfig struct {
 	Name       string                     `json:"name"`
 	Image      string                     `json:"image"`
 	User       string                     `json:"user"`
-	Build      *build.ProjectBuild        `json:"build"`
+	Build      *build.ProjectBuildConfig  `json:"build"`
 	Repository *gitprovider.GitRepository `json:"repository"`
 	EnvVars    map[string]string          `json:"-"`
 	IsDefault  bool                       `json:"default"`

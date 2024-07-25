@@ -1316,7 +1316,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "build": {
-                    "$ref": "#/definitions/ProjectBuild"
+                    "$ref": "#/definitions/ProjectBuildConfig"
                 },
                 "envVars": {
                     "type": "object",
@@ -1349,10 +1349,10 @@ const docTemplate = `{
         "CreateProjectDTO": {
             "type": "object",
             "properties": {
-                "existingProjectConfig": {
-                    "$ref": "#/definitions/ExistingProjectConfigDTO"
+                "existingConfig": {
+                    "$ref": "#/definitions/ExistingConfigDTO"
                 },
-                "newProjectConfig": {
+                "newConfig": {
                     "$ref": "#/definitions/CreateProjectConfigDTO"
                 }
             }
@@ -1380,7 +1380,15 @@ const docTemplate = `{
                 }
             }
         },
-        "ExistingProjectConfigDTO": {
+        "DevcontainerConfig": {
+            "type": "object",
+            "properties": {
+                "filePath": {
+                    "type": "string"
+                }
+            }
+        },
+        "ExistingConfigDTO": {
             "type": "object",
             "properties": {
                 "branch": {
@@ -1590,7 +1598,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "build": {
-                    "$ref": "#/definitions/ProjectBuild"
+                    "$ref": "#/definitions/ProjectBuildConfig"
                 },
                 "default": {
                     "type": "boolean"
@@ -1618,19 +1626,11 @@ const docTemplate = `{
                 }
             }
         },
-        "ProjectBuild": {
+        "ProjectBuildConfig": {
             "type": "object",
             "properties": {
                 "devcontainer": {
-                    "$ref": "#/definitions/ProjectBuildDevcontainer"
-                }
-            }
-        },
-        "ProjectBuildDevcontainer": {
-            "type": "object",
-            "properties": {
-                "devContainerFilePath": {
-                    "type": "string"
+                    "$ref": "#/definitions/DevcontainerConfig"
                 }
             }
         },
@@ -1638,7 +1638,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "build": {
-                    "$ref": "#/definitions/ProjectBuild"
+                    "$ref": "#/definitions/ProjectBuildConfig"
                 },
                 "default": {
                     "type": "boolean"

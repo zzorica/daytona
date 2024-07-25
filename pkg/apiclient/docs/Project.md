@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Build** | Pointer to [**ProjectBuild**](ProjectBuild.md) |  | [optional] 
+**Build** | Pointer to [**ProjectBuildConfig**](ProjectBuildConfig.md) |  | [optional] 
 **Default** | Pointer to **bool** |  | [optional] 
 **Image** | Pointer to **string** |  | [optional] 
 **Name** | Pointer to **string** |  | [optional] 
@@ -35,20 +35,20 @@ but it doesn't guarantee that properties required by API are set
 
 ### GetBuild
 
-`func (o *Project) GetBuild() ProjectBuild`
+`func (o *Project) GetBuild() ProjectBuildConfig`
 
 GetBuild returns the Build field if non-nil, zero value otherwise.
 
 ### GetBuildOk
 
-`func (o *Project) GetBuildOk() (*ProjectBuild, bool)`
+`func (o *Project) GetBuildOk() (*ProjectBuildConfig, bool)`
 
 GetBuildOk returns a tuple with the Build field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetBuild
 
-`func (o *Project) SetBuild(v ProjectBuild)`
+`func (o *Project) SetBuild(v ProjectBuildConfig)`
 
 SetBuild sets Build field to given value.
 

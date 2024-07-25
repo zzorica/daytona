@@ -27,21 +27,21 @@ func DetectProjectBuilderType(project *project.Project, projectDir string, sshCl
 
 	if sshClient != nil {
 		if _, err := sshClient.ReadFile(path.Join(projectDir, ".devcontainer/devcontainer.json")); err == nil {
-			project.Build.Devcontainer = &build.ProjectBuildDevcontainer{
-				DevContainerFilePath: ".devcontainer/devcontainer.json",
+			project.Build.Devcontainer = &build.DevcontainerConfig{
+				FilePath: ".devcontainer/devcontainer.json",
 			}
 			return BuilderTypeDevcontainer, nil
 		}
 		if _, err := sshClient.ReadFile(path.Join(projectDir, ".devcontainer.json")); err == nil {
-			project.Build.Devcontainer = &build.ProjectBuildDevcontainer{
-				DevContainerFilePath: ".devcontainer.json",
+			project.Build.Devcontainer = &build.DevcontainerConfig{
+				FilePath: ".devcontainer.json",
 			}
 			return BuilderTypeDevcontainer, nil
 		}
 	} else {
 		if devcontainerFilePath, pathError := findDevcontainerConfigFilePath(projectDir); pathError == nil {
-			project.Build.Devcontainer = &build.ProjectBuildDevcontainer{
-				DevContainerFilePath: devcontainerFilePath,
+			project.Build.Devcontainer = &build.DevcontainerConfig{
+				FilePath: devcontainerFilePath,
 			}
 
 			return BuilderTypeDevcontainer, nil

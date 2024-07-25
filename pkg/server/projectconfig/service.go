@@ -30,7 +30,7 @@ type ProjectConfigService struct {
 	configStore config.Store
 }
 
-func NewProjectConfigService(config ProjectConfigServiceConfig) IProjectConfigService {
+func NewConfigService(config ProjectConfigServiceConfig) IProjectConfigService {
 	return &ProjectConfigService{
 		configStore: config.ConfigStore,
 	}

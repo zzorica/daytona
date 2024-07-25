@@ -20,15 +20,15 @@ type ProjectDTO struct {
 } //	@name	ProjectDTO
 
 type CreateProjectDTO struct {
-	NewProjectConfig      *projectconfig_dto.CreateProjectConfigDTO
-	ExistingProjectConfig *ExistingProjectConfigDTO
+	NewConfig      *projectconfig_dto.CreateProjectConfigDTO
+	ExistingConfig *ExistingConfigDTO
 } //	@name	CreateProjectDTO
 
-type ExistingProjectConfigDTO struct {
+type ExistingConfigDTO struct {
 	ConfigName  string `json:"configName"`
 	ProjectName string `json:"projectName"`
 	Branch      string `json:"branch"`
-} //	@name	ExistingProjectConfigDTO
+} //	@name	ExistingConfigDTO
 
 type CreateWorkspaceDTO struct {
 	Id       string             `json:"id"`

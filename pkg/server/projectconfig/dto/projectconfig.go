@@ -12,7 +12,7 @@ type CreateProjectConfigDTO struct {
 	Name    string                       `json:"name"`
 	Image   *string                      `json:"image,omitempty"`
 	User    *string                      `json:"user,omitempty"`
-	Build   *build.ProjectBuild          `json:"build,omitempty"`
+	Build   *build.ProjectBuildConfig    `json:"build,omitempty"`
 	Source  CreateProjectConfigSourceDTO `json:"source"`
 	EnvVars map[string]string            `json:"envVars"`
 } // @name CreateProjectConfigDTO

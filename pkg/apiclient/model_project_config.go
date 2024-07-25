@@ -19,12 +19,12 @@ var _ MappedNullable = &ProjectConfig{}
 
 // ProjectConfig struct for ProjectConfig
 type ProjectConfig struct {
-	Build      *ProjectBuild  `json:"build,omitempty"`
-	Default    *bool          `json:"default,omitempty"`
-	Image      *string        `json:"image,omitempty"`
-	Name       *string        `json:"name,omitempty"`
-	Repository *GitRepository `json:"repository,omitempty"`
-	User       *string        `json:"user,omitempty"`
+	Build      *ProjectBuildConfig `json:"build,omitempty"`
+	Default    *bool               `json:"default,omitempty"`
+	Image      *string             `json:"image,omitempty"`
+	Name       *string             `json:"name,omitempty"`
+	Repository *GitRepository      `json:"repository,omitempty"`
+	User       *string             `json:"user,omitempty"`
 }
 
 // NewProjectConfig instantiates a new ProjectConfig object
@@ -45,9 +45,9 @@ func NewProjectConfigWithDefaults() *ProjectConfig {
 }
 
 // GetBuild returns the Build field value if set, zero value otherwise.
-func (o *ProjectConfig) GetBuild() ProjectBuild {
+func (o *ProjectConfig) GetBuild() ProjectBuildConfig {
 	if o == nil || IsNil(o.Build) {
-		var ret ProjectBuild
+		var ret ProjectBuildConfig
 		return ret
 	}
 	return *o.Build
@@ -55,7 +55,7 @@ func (o *ProjectConfig) GetBuild() ProjectBuild {
 
 // GetBuildOk returns a tuple with the Build field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ProjectConfig) GetBuildOk() (*ProjectBuild, bool) {
+func (o *ProjectConfig) GetBuildOk() (*ProjectBuildConfig, bool) {
 	if o == nil || IsNil(o.Build) {
 		return nil, false
 	}
@@ -71,8 +71,8 @@ func (o *ProjectConfig) HasBuild() bool {
 	return false
 }
 
-// SetBuild gets a reference to the given ProjectBuild and assigns it to the Build field.
-func (o *ProjectConfig) SetBuild(v ProjectBuild) {
+// SetBuild gets a reference to the given ProjectBuildConfig and assigns it to the Build field.
+func (o *ProjectConfig) SetBuild(v ProjectBuildConfig) {
 	o.Build = &v
 }
 

@@ -56,10 +56,10 @@ func GetProjectsCreationDataFromPrompt(config ProjectsDataPromptConfig) ([]apicl
 			projectNames := []string{}
 			for _, p := range projectList {
 				var currentName string
-				if p.NewProjectConfig.Name != nil {
-					currentName = *p.NewProjectConfig.Name
-				} else if p.ExistingProjectConfig != nil && p.ExistingProjectConfig.ProjectName != nil {
-					currentName = *p.ExistingProjectConfig.ProjectName
+				if p.NewConfig.Name != nil {
+					currentName = *p.NewConfig.Name
+				} else if p.ExistingConfig != nil && p.ExistingConfig.ProjectName != nil {
+					currentName = *p.ExistingConfig.ProjectName
 				}
 				projectNames = append(projectNames, currentName)
 			}
@@ -73,7 +73,7 @@ func GetProjectsCreationDataFromPrompt(config ProjectsDataPromptConfig) ([]apicl
 				}
 
 				projectList = append(projectList, apiclient.CreateProjectDTO{
-					ExistingProjectConfig: &apiclient.ExistingProjectConfigDTO{
+					ExistingConfig: &apiclient.ExistingConfigDTO{
 						ConfigName:  projectConfig.Name,
 						ProjectName: &projectName,
 						Branch:      &branch,
@@ -164,8 +164,8 @@ func GetEnvVariables(project *apiclient.CreateProjectDTO, profileData *apiclient
 		}
 	}
 
-	if project.NewProjectConfig.EnvVars != nil {
-		for k, v := range *project.NewProjectConfig.EnvVars {
+	if project.NewConfig.EnvVars != nil {
+		for k, v := range *project.NewConfig.EnvVars {
 			if strings.HasPrefix(v, "$") {
 				env, ok := os.LookupEnv(v[1:])
 				if ok {
@@ -215,12 +215,12 @@ func GetBranchFromProjectConfig(projectConfig *apiclient.ProjectConfig, apiClien
 
 func newCreateProjectDTO(config ProjectsDataPromptConfig, providerRepo *apiclient.GitRepository, providerRepoName string) apiclient.CreateProjectDTO {
 	project := apiclient.CreateProjectDTO{
-		NewProjectConfig: &apiclient.CreateProjectConfigDTO{
+		NewConfig: &apiclient.CreateProjectConfigDTO{
 			Name: &providerRepoName,
 			Source: &apiclient.CreateProjectConfigSourceDTO{
 				Repository: providerRepo,
 			},
-			Build:   &apiclient.ProjectBuild{},
+			Build:   &apiclient.ProjectBuildConfig{},
 			Image:   config.Defaults.Image,
 			User:    config.Defaults.ImageUser,
 			EnvVars: &map[string]string{},

@@ -100,7 +100,7 @@ func (f *BuilderFactory) Create(p project.Project, gpc *gitprovider.GitProviderC
 		return nil, err
 	}
 
-	if p.Build == nil || *p.Build != (build.ProjectBuild{}) {
+	if p.Build == nil || *p.Build != (build.ProjectBuildConfig{}) {
 		if p.Build != nil && p.Build.Devcontainer != nil {
 			return f.newDevcontainerBuilder(buildId, p, gpc, hash, projectDir)
 		}

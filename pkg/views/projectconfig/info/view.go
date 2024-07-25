@@ -56,8 +56,8 @@ func Render(projectConfig *apiclient.ProjectConfig, apiServerConfig *apiclient.S
 		output += getInfoLine("User", *projectConfig.User) + "\n"
 	}
 
-	if projectConfig.Build != nil && projectConfig.Build.Devcontainer != nil && projectConfig.Build.Devcontainer.DevContainerFilePath != nil {
-		output += getInfoLine("Devcontainer path", *projectConfig.Build.Devcontainer.DevContainerFilePath) + "\n"
+	if projectConfig.Build != nil && projectConfig.Build.Devcontainer != nil && projectConfig.Build.Devcontainer.FilePath != nil {
+		output += getInfoLine("Devcontainer path", *projectConfig.Build.Devcontainer.FilePath) + "\n"
 	}
 
 	terminalWidth, _, err := term.GetSize(int(os.Stdout.Fd()))
@@ -91,13 +91,13 @@ func getInfoLine(key, value string) string {
 	return propertyNameStyle.Render(fmt.Sprintf("%-*s", propertyNameWidth, key)) + propertyValueStyle.Render(value) + "\n"
 }
 
-func GetLabelFromBuild(build *apiclient.ProjectBuild) string {
+func GetLabelFromBuild(build *apiclient.ProjectBuildConfig) string {
 	if build == nil {
 		return "Automatic"
 	}
 
-	if build.Devcontainer != nil && build.Devcontainer.DevContainerFilePath != nil {
-		return fmt.Sprintf("Devcontainer (%s)", *build.Devcontainer.DevContainerFilePath)
+	if build.Devcontainer != nil && build.Devcontainer.FilePath != nil {
+		return fmt.Sprintf("Devcontainer (%s)", *build.Devcontainer.FilePath)
 	}
 
 	return ""

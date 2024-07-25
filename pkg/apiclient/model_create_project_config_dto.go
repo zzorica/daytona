@@ -19,7 +19,7 @@ var _ MappedNullable = &CreateProjectConfigDTO{}
 
 // CreateProjectConfigDTO struct for CreateProjectConfigDTO
 type CreateProjectConfigDTO struct {
-	Build   *ProjectBuild                 `json:"build,omitempty"`
+	Build   *ProjectBuildConfig           `json:"build,omitempty"`
 	EnvVars *map[string]string            `json:"envVars,omitempty"`
 	Image   *string                       `json:"image,omitempty"`
 	Name    *string                       `json:"name,omitempty"`
@@ -45,9 +45,9 @@ func NewCreateProjectConfigDTOWithDefaults() *CreateProjectConfigDTO {
 }
 
 // GetBuild returns the Build field value if set, zero value otherwise.
-func (o *CreateProjectConfigDTO) GetBuild() ProjectBuild {
+func (o *CreateProjectConfigDTO) GetBuild() ProjectBuildConfig {
 	if o == nil || IsNil(o.Build) {
-		var ret ProjectBuild
+		var ret ProjectBuildConfig
 		return ret
 	}
 	return *o.Build
@@ -55,7 +55,7 @@ func (o *CreateProjectConfigDTO) GetBuild() ProjectBuild {
 
 // GetBuildOk returns a tuple with the Build field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *CreateProjectConfigDTO) GetBuildOk() (*ProjectBuild, bool) {
+func (o *CreateProjectConfigDTO) GetBuildOk() (*ProjectBuildConfig, bool) {
 	if o == nil || IsNil(o.Build) {
 		return nil, false
 	}
@@ -71,8 +71,8 @@ func (o *CreateProjectConfigDTO) HasBuild() bool {
 	return false
 }
 
-// SetBuild gets a reference to the given ProjectBuild and assigns it to the Build field.
-func (o *CreateProjectConfigDTO) SetBuild(v ProjectBuild) {
+// SetBuild gets a reference to the given ProjectBuildConfig and assigns it to the Build field.
+func (o *CreateProjectConfigDTO) SetBuild(v ProjectBuildConfig) {
 	o.Build = &v
 }
 

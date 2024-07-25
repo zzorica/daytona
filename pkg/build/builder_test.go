@@ -22,9 +22,9 @@ import (
 var p project.Project = project.Project{
 	ProjectConfig: config.ProjectConfig{
 		Repository: &gitprovider.GitRepository{},
-		Build: &project_build.ProjectBuild{
-			Devcontainer: &project_build.ProjectBuildDevcontainer{
-				DevContainerFilePath: ".devcontainer/devcontainer.json",
+		Build: &project_build.ProjectBuildConfig{
+			Devcontainer: &project_build.DevcontainerConfig{
+				FilePath: ".devcontainer/devcontainer.json",
 			},
 		}},
 }

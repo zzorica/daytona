@@ -20,7 +20,7 @@ import (
 
 var doneConfiguringName = "DoneConfiguringName"
 var DoneConfiguring = apiclient.CreateProjectDTO{
-	NewProjectConfig: &apiclient.CreateProjectConfigDTO{
+	NewConfig: &apiclient.CreateProjectConfigDTO{
 		Name: &doneConfiguringName,
 	},
 }
@@ -47,17 +47,17 @@ func selectProjectRequestPrompt(projects *[]apiclient.CreateProjectDTO, choiceCh
 		var user string
 		var devcontainerConfig string
 
-		if project.NewProjectConfig.Name != nil {
-			name = fmt.Sprintf("%s %s", "Project:", *project.NewProjectConfig.Name)
+		if project.NewConfig.Name != nil {
+			name = fmt.Sprintf("%s %s", "Project:", *project.NewConfig.Name)
 		}
-		if project.NewProjectConfig.Image != nil {
-			image = fmt.Sprintf("%s %s", "Image:", *project.NewProjectConfig.Image)
+		if project.NewConfig.Image != nil {
+			image = fmt.Sprintf("%s %s", "Image:", *project.NewConfig.Image)
 		}
-		if project.NewProjectConfig.User != nil {
-			user = fmt.Sprintf("%s %s", "User:", *project.NewProjectConfig.User)
+		if project.NewConfig.User != nil {
+			user = fmt.Sprintf("%s %s", "User:", *project.NewConfig.User)
 		}
-		if project.NewProjectConfig.Build != nil && project.NewProjectConfig.Build.Devcontainer != nil && project.NewProjectConfig.Build.Devcontainer.DevContainerFilePath != nil {
-			devcontainerConfig = fmt.Sprintf("%s %s", "Devcontainer Config:", *project.NewProjectConfig.Build.Devcontainer.DevContainerFilePath)
+		if project.NewConfig.Build != nil && project.NewConfig.Build.Devcontainer != nil && project.NewConfig.Build.Devcontainer.FilePath != nil {
+			devcontainerConfig = fmt.Sprintf("%s %s", "Devcontainer Config:", *project.NewConfig.Build.Devcontainer.FilePath)
 		}
 
 		newItem := projectRequestItem{name: name, image: image, user: user, project: project, devcontainerConfig: devcontainerConfig}
@@ -157,7 +157,7 @@ func (d projectRequestItemDelegate) Render(w io.Writer, m list.Model, index int,
 	}
 
 	// Render to the terminal
-	if i.project.NewProjectConfig.Name == DoneConfiguring.NewProjectConfig.Name {
+	if i.project.NewConfig.Name == DoneConfiguring.NewConfig.Name {
 		s.WriteRune('\n')
 		s.WriteString(name)
 		s.WriteRune('\n')

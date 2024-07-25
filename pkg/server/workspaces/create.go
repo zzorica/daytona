@@ -69,17 +69,17 @@ func (s *WorkspaceService) CreateWorkspace(ctx context.Context, req dto.CreateWo
 	for _, p := range req.Projects {
 		var projectConfig *config.ProjectConfig
 
-		if p.NewProjectConfig != nil {
-			projectConfig = s.projectConfigService.ToProjectConfig(*p.NewProjectConfig)
+		if p.NewConfig != nil {
+			projectConfig = s.projectConfigService.ToProjectConfig(*p.NewConfig)
 		}
 
-		if p.ExistingProjectConfig != nil {
-			projectConfig, err = s.projectConfigService.Find(p.ExistingProjectConfig.ConfigName)
+		if p.ExistingConfig != nil {
+			projectConfig, err = s.projectConfigService.Find(p.ExistingConfig.ConfigName)
 			if err != nil {
 				return nil, err
 			}
-			projectConfig.Repository.Branch = &p.ExistingProjectConfig.Branch
-			projectConfig.Name = p.ExistingProjectConfig.ProjectName
+			projectConfig.Repository.Branch = &p.ExistingConfig.Branch
+			projectConfig.Name = p.ExistingConfig.ProjectName
 		}
 
 		if projectConfig == nil {

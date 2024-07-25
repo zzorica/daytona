@@ -3,21 +3,21 @@
 
 package build
 
-type ProjectBuildDevcontainer struct {
-	DevContainerFilePath string `json:"devContainerFilePath"`
-} // @name ProjectBuildDevcontainer
+type DevcontainerConfig struct {
+	FilePath string `json:"filePath"`
+} // @name DevcontainerConfig
 
 /*
-type ProjectBuildDockerfile struct {
+type DockerfileConfig struct {
 	Context    string            `json:"context"`
 	Dockerfile string            `json:"dockerfile"`
 	Args       map[string]string `json:"args"`
-} // @name ProjectBuildDockerfile
+} // @name DockerfileConfig
 */
 
-type ProjectBuild struct {
-	Devcontainer *ProjectBuildDevcontainer `json:"devcontainer"`
+type ProjectBuildConfig struct {
+	Devcontainer *DevcontainerConfig `json:"devcontainer"`
 	/*
 		Dockerfile   *ProjectBuildDockerfile   `json:"dockerfile"`
 	*/
-} // @name ProjectBuild
+} // @name ProjectBuildConfig

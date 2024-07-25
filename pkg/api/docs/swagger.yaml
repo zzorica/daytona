@@ -22,7 +22,7 @@ definitions:
   CreateProjectConfigDTO:
     properties:
       build:
-        $ref: '#/definitions/ProjectBuild'
+        $ref: '#/definitions/ProjectBuildConfig'
       envVars:
         additionalProperties:
           type: string
@@ -43,9 +43,9 @@ definitions:
     type: object
   CreateProjectDTO:
     properties:
-      existingProjectConfig:
-        $ref: '#/definitions/ExistingProjectConfigDTO'
-      newProjectConfig:
+      existingConfig:
+        $ref: '#/definitions/ExistingConfigDTO'
+      newConfig:
         $ref: '#/definitions/CreateProjectConfigDTO'
     type: object
   CreateWorkspaceDTO:
@@ -63,7 +63,12 @@ definitions:
     required:
     - projects
     type: object
-  ExistingProjectConfigDTO:
+  DevcontainerConfig:
+    properties:
+      filePath:
+        type: string
+    type: object
+  ExistingConfigDTO:
     properties:
       branch:
         type: string
@@ -199,7 +204,7 @@ definitions:
   Project:
     properties:
       build:
-        $ref: '#/definitions/ProjectBuild'
+        $ref: '#/definitions/ProjectBuildConfig'
       default:
         type: boolean
       image:
@@ -217,20 +222,15 @@ definitions:
       workspaceId:
         type: string
     type: object
-  ProjectBuild:
+  ProjectBuildConfig:
     properties:
       devcontainer:
-        $ref: '#/definitions/ProjectBuildDevcontainer'
-    type: object
-  ProjectBuildDevcontainer:
-    properties:
-      devContainerFilePath:
-        type: string
+        $ref: '#/definitions/DevcontainerConfig'
     type: object
   ProjectConfig:
     properties:
       build:
-        $ref: '#/definitions/ProjectBuild'
+        $ref: '#/definitions/ProjectBuildConfig'
       default:
         type: boolean
       image:

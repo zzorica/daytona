@@ -14,7 +14,7 @@ type ProjectConfigStore struct {
 	db *gorm.DB
 }
 
-func NewProjectConfigStore(db *gorm.DB) (*ProjectConfigStore, error) {
+func NewConfigStore(db *gorm.DB) (*ProjectConfigStore, error) {
 	err := db.AutoMigrate(&ProjectConfigDTO{})
 	if err != nil {
 		return nil, err
