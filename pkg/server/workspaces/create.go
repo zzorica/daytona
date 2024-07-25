@@ -80,12 +80,6 @@ func (s *WorkspaceService) CreateWorkspace(ctx context.Context, req dto.CreateWo
 			}
 			projectConfig.Repository.Branch = &p.ExistingProjectConfig.Branch
 			projectConfig.Name = p.ExistingProjectConfig.ProjectName
-
-			fmt.Println(projectConfig)
-			fmt.Println(*projectConfig.Repository.Branch)
-			fmt.Println(projectConfig.Repository.Url)
-			fmt.Println(projectConfig.Name)
-			fmt.Println(p.NewProjectConfig)
 		}
 
 		if projectConfig == nil {
