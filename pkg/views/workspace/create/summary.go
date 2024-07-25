@@ -45,10 +45,11 @@ type SummaryModel struct {
 	name        string
 	projectList []apiclient.CreateProjectDTO
 	defaults    *ProjectDefaults
+	nameLabel   string
 }
 
 type SubmissionFormConfig struct {
-	FlagName      *string
+	ChosenName    *string
 	SuggestedName string
 	ExistingNames []string
 	ProjectList   *[]apiclient.CreateProjectDTO
@@ -90,12 +91,12 @@ func RunSubmissionForm(config SubmissionFormConfig) error {
 	return RunSubmissionForm(config)
 }
 
-func RenderSummary(name string, projectList []apiclient.CreateProjectDTO, defaults *ProjectDefaults) (string, error) {
+func RenderSummary(name string, projectList []apiclient.CreateProjectDTO, defaults *ProjectDefaults, nameLabel string) (string, error) {
 	var output string
 	if name == "" {
 		output = views.GetStyledMainTitle("SUMMARY")
 	} else {
-		output = views.GetStyledMainTitle(fmt.Sprintf("SUMMARY - Workspace %s", name))
+		output = views.GetStyledMainTitle(fmt.Sprintf("SUMMARY - %s %s", nameLabel, name))
 	}
 
 	for _, project := range projectList {
@@ -174,22 +175,23 @@ func NewSummaryModel(config SubmissionFormConfig) SummaryModel {
 	m := SummaryModel{width: maxWidth}
 	m.lg = lipgloss.DefaultRenderer()
 	m.styles = NewStyles(m.lg)
-	m.name = *config.FlagName
+	m.name = *config.ChosenName
 	m.projectList = *config.ProjectList
 	m.defaults = config.Defaults
+	m.nameLabel = config.NameLabel
 
-	if *config.FlagName == "" {
-		*config.FlagName = config.SuggestedName
+	if *config.ChosenName == "" {
+		*config.ChosenName = config.SuggestedName
 	}
 
 	m.form = huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().
-				Title(config.NameLabel).
-				Value(config.FlagName).
+				Title(fmt.Sprintf("%s name", config.NameLabel)).
+				Value(config.ChosenName).
 				Key("name").
 				Validate(func(str string) error {
-					result, err := util.GetValidatedWorkspaceName(str)
+					result, err := util.GetValidatedName(str)
 					if err != nil {
 						return err
 					}
@@ -198,7 +200,7 @@ func NewSummaryModel(config SubmissionFormConfig) SummaryModel {
 							return errors.New("name already exists")
 						}
 					}
-					*config.FlagName = result
+					*config.ChosenName = result
 					return nil
 				}),
 		),
@@ -253,7 +255,7 @@ func (m SummaryModel) View() string {
 	view := m.form.View() + configurationHelpLine
 
 	if len(m.projectList) > 1 || len(m.projectList) == 1 && ProjectsConfigurationChanged {
-		summary, err := RenderSummary(m.name, m.projectList, m.defaults)
+		summary, err := RenderSummary(m.name, m.projectList, m.defaults, m.nameLabel)
 		if err != nil {
 			log.Fatal(err)
 		}

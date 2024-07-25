@@ -333,11 +333,11 @@ func processPrompting(apiClient *apiclient.APIClient, workspaceName *string, pro
 	suggestedName := workspace_util.GetSuggestedName(initialSuggestion, workspaceNames)
 
 	submissionFormConfig := create.SubmissionFormConfig{
-		FlagName:      workspaceName,
+		ChosenName:    workspaceName,
 		SuggestedName: suggestedName,
 		ExistingNames: workspaceNames,
 		ProjectList:   projects,
-		NameLabel:     "Workspace name",
+		NameLabel:     "Workspace",
 		Defaults:      projectDefaults,
 	}
 

@@ -106,12 +106,13 @@ func (a *Agent) startProjectMode() error {
 		user, err := a.getGitUser(*gitProvider.Id)
 		if err != nil {
 			log.Error(fmt.Sprintf("failed to get git user data: %s", err))
-		}
-		gitUser = &gitprovider.GitUser{
-			Email:    *user.Email,
-			Name:     *user.Name,
-			Id:       *user.Id,
-			Username: *user.Username,
+		} else {
+			gitUser = &gitprovider.GitUser{
+				Email:    *user.Email,
+				Name:     *user.Name,
+				Id:       *user.Id,
+				Username: *user.Username,
+			}
 		}
 	}
 

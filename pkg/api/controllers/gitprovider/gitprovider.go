@@ -95,13 +95,13 @@ func GetGitProviderIdForUrl(ctx *gin.Context) {
 
 	server := server.GetInstance(nil)
 
-	gitProvider, err := server.GitProviderService.GetConfigForUrl(decodedUrl)
+	_, providerId, err := server.GitProviderService.GetGitProviderForUrl(decodedUrl)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to get git provider for url: %s", err.Error()))
 		return
 	}
 
-	ctx.String(200, gitProvider.Id)
+	ctx.String(200, providerId)
 }
 
 // SetGitProvider 			godoc

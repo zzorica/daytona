@@ -58,6 +58,7 @@ func ConfigureProjects(projectList *[]apiclient.CreateProjectDTO, defaults Proje
 	var currentProject *apiclient.CreateProjectDTO
 
 	if len(*projectList) > 1 {
+		// TODO: disable editing of request's existing project config entries
 		currentProject = selection.GetProjectRequestFromPrompt(projectList)
 		if currentProject == nil {
 			return false, errors.New("project is required")
@@ -79,7 +80,8 @@ func ConfigureProjects(projectList *[]apiclient.CreateProjectDTO, defaults Proje
 			devContainerFilePath = *currentProject.NewProjectConfig.Build.Devcontainer.DevContainerFilePath
 		}
 	} else {
-		if *currentProject.NewProjectConfig.Image == *defaults.Image && *currentProject.NewProjectConfig.User == *defaults.ImageUser {
+		if currentProject.NewProjectConfig.Image == nil && currentProject.NewProjectConfig.User == nil ||
+			*currentProject.NewProjectConfig.Image == *defaults.Image && *currentProject.NewProjectConfig.User == *defaults.ImageUser {
 			builderChoice = NONE
 		} else {
 			builderChoice = CUSTOMIMAGE

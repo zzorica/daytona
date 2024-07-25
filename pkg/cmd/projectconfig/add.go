@@ -17,7 +17,7 @@ import (
 
 var projectConfigAddCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Add project config",
+	Short: "Add a project config",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		var projects []apiclient.CreateProjectDTO
@@ -93,14 +93,14 @@ var projectConfigAddCmd = &cobra.Command{
 
 		suggestedName := workspace_util.GetSuggestedName(initialSuggestion, existingProjectConfigNames)
 
-		flagName := ""
+		chosenName := suggestedName
 
 		submissionFormConfig := create.SubmissionFormConfig{
-			FlagName:      &flagName,
+			ChosenName:    &chosenName,
 			SuggestedName: suggestedName,
 			ExistingNames: existingProjectConfigNames,
 			ProjectList:   &projects,
-			NameLabel:     "Project config name",
+			NameLabel:     "Project config",
 			Defaults:      projectDefaults,
 		}
 
@@ -110,7 +110,7 @@ var projectConfigAddCmd = &cobra.Command{
 		}
 
 		newProjectConfig := apiclient.CreateProjectConfigDTO{
-			Name:  projects[0].NewProjectConfig.Name,
+			Name:  &chosenName,
 			Build: projects[0].NewProjectConfig.Build,
 			Image: projects[0].NewProjectConfig.Image,
 			User:  projects[0].NewProjectConfig.User,
@@ -126,9 +126,6 @@ var projectConfigAddCmd = &cobra.Command{
 			log.Fatal(apiclient_util.HandleErrorResponse(res, err))
 		}
 
-		views.RenderInfoMessage("Project config set successfully")
+		views.RenderInfoMessage("Project config added successfully")
 	},
-}
-
-func init() {
 }

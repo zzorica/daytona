@@ -9,7 +9,8 @@ inherited_options:
       usage: Output format. Must be one of (yaml, json)
 see_also:
     - daytona - Daytona is a Dev Environment Manager
-    - daytona project-config add - Add project config
+    - daytona project-config add - Add a project config
     - daytona project-config delete - Delete a project config
     - daytona project-config info - Show project config info
     - daytona project-config list - Lists project configs
+    - daytona project-config update - Update a project config

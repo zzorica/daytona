@@ -1,9 +1,9 @@
-## daytona project-config add
+## daytona project-config update
 
-Add a project config
+Update a project config
 
 ```
-daytona project-config add [flags]
+daytona project-config update [flags]
 ```
 
 ### Options inherited from parent commands
