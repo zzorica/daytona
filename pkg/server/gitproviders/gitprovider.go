@@ -94,7 +94,7 @@ func (s *GitProviderService) GetConfigForUrl(repoUrl string) (*gitprovider.GitPr
 
 	supportedGitProviders := config.GetSupportedGitProviders()
 	for _, provider := range supportedGitProviders {
-		if strings.Contains(url, provider.Id) {
+		if strings.Contains(repoUrl, provider.Id) {
 			return &gitprovider.GitProviderConfig{
 				Id: provider.Id,
 			}, nil
