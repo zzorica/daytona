@@ -24,6 +24,20 @@ jobs:
        # with:
        #   token: ${{ secrets.GITHUBBOT_TOKEN }}
 
+      - name: Check if tag version exists
+        id: check-tag
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const tag = '${{ github.event.inputs.tag_version }}';
+            const { data: tags } = await github.repos.listTags({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            if (tags.some(t => t.name === tag)) {
+              core.setFailed(`Tag ${tag} already exists.`);
+            }
+
       - name: Update swagger version in server.go
         run: |
           sed  -i 's/\(@version[[:space:]]*\)[0-9]*\.[0-9]*\.[0-9]*/\1${{ github.event.inputs.tag_version }}/' pkg/api/server.go
