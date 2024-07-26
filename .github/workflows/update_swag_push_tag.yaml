@@ -1,0 +1,41 @@
+name: "[Release] Update swagger and push tag"
+
+on:
+  workflow_dispatch:
+    inputs:
+        tag_version:
+          description: 'Tag version'
+          required: true
+
+concurrency:
+  # New commit on branch cancels running workflows of the same branch
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update-swagger-and-push-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+       # with:
+       #   token: ${{ secrets.GITHUBBOT_TOKEN }}
+
+      - name: Update package.json for web extension
+        run: |
+          sed 's/\(@version[[:space:]]*\)[0-9]*\.[0-9]*\.[0-9]*/\1${{ github.event.inputs.tag_version }}/' pkg/api/server.go
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Commit swagger update
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: 'daytona/pkg/api/server.go daytona/pkg/api/docs/swagger.json daytona/pkg/api/docs/swagger.yaml'
+          branch: main
+          commit_message: Automated swagger file update to - ${{ github.event.inputs.tag_version }} [skip ci]
