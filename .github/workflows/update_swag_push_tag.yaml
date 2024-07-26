@@ -45,6 +45,6 @@ jobs:
       - name: Commit swagger update
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          file_pattern: 'daytona/pkg/api/server.go daytona/pkg/api/docs/swagger.json daytona/pkg/api/docs/swagger.yaml'
+          file_pattern: 'pkg/api/server.go pkg/api/docs/swagger.json pkg/api/docs/swagger.yaml'
           branch: main
           commit_message: Automated swagger file update to - ${{ github.event.inputs.tag_version }} [skip ci]
