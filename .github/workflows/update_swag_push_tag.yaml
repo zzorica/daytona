@@ -47,4 +47,11 @@ jobs:
         with:
           file_pattern: 'pkg/api/server.go pkg/api/docs/swagger.json pkg/api/docs/swagger.yaml'
           branch: main
-          commit_message: Automated swagger file update to - ${{ github.event.inputs.tag_version }} [skip ci]
+          commit_message: "chore: automated swagger version update to - ${{ github.event.inputs.tag_version }} [skip ci]"
+
+      - name: Commit tag
+        id: tag
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_tag: ${{ github.event.inputs.tag_version }}
