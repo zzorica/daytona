@@ -24,7 +24,7 @@ jobs:
        # with:
        #   token: ${{ secrets.GITHUBBOT_TOKEN }}
 
-      - name: Update package.json for web extension
+      - name: Update swagger version in server.go
         run: |
           sed 's/\(@version[[:space:]]*\)[0-9]*\.[0-9]*\.[0-9]*/\1${{ github.event.inputs.tag_version }}/' pkg/api/server.go
 
@@ -33,10 +33,13 @@ jobs:
           go-version-file: go.mod
           cache: true
 
-      - name: Generate swagger files
+      - name: Setup go dependencies
         run: |
           go install github.com/swaggo/swag/cmd/swag@v1.16.3
           go mod tidy
+
+      - name: Update swagger
+        run: |
           ./hack/swagger.sh
 
       - name: Commit swagger update
