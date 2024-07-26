@@ -44,6 +44,7 @@ jobs:
 
       - name: Commit swagger update
         uses: stefanzweifel/git-auto-commit-action@v5
+        id: commit
         with:
           file_pattern: 'pkg/api/server.go pkg/api/docs/swagger.json pkg/api/docs/swagger.yaml'
           branch: main
@@ -51,6 +52,7 @@ jobs:
 
       - name: Commit tag
         id: tag
+        if: steps.commit.outputs.changes_detected == 'true'
         uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
