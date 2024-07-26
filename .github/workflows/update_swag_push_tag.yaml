@@ -21,8 +21,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-       # with:
-       #   token: ${{ secrets.GITHUBBOT_TOKEN }}
+        with:
+          fetch-tags: true
+          #token: ${{ secrets.GITHUBBOT_TOKEN }}
 
       - uses: mukunku/tag-exists-action@v1.6.0
         id: check-tag
