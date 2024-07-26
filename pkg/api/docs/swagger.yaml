@@ -419,7 +419,7 @@ info:
   contact: {}
   description: Daytona Server API
   title: Daytona Server API
-  version: "0.25"
+  version: 0.26.1
 paths:
   /apikey:
     get:
